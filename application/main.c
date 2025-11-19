@@ -1,4 +1,3 @@
-
 #include "hardware_map.h"
 #include "systick.h"
 #include "stm32f4xx_usart.h"

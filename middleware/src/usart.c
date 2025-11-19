@@ -1,5 +1,12 @@
 #include "usart.h"
 
+/**
+ * @brief   Init usart following by usart_c struct
+ * 
+ * @param cfg   Pointer to usart_c variable 
+ * 
+ * @note    For more information about usart_c please read usart.h
+ */
 void usart_init(usart_c* cfg) {
     // Enable USART clock
     if (cfg->USARTx == USART1) {
@@ -109,6 +116,12 @@ void usart_init(usart_c* cfg) {
     USART_Cmd(cfg->USARTx, ENABLE);
 }
 
+/**
+ * @brief   Send each char in a string
+ * 
+ * @param   USARTx: USART 1, 2, 3, ...
+ * @param   str: String that you need to send
+ */
 void usart_sendstring(USART_TypeDef *USARTx, const char *str) {
     while (*str) {
         USART_SendData(USARTx, *str++);
@@ -116,6 +129,11 @@ void usart_sendstring(USART_TypeDef *USARTx, const char *str) {
     }
 }
 
+/**
+ * @brief   Receive each byte
+ * 
+ * @retval  Byte that you receive
+ */
 uint8_t usart_receive(USART_TypeDef* USARTx) {
     while (USART_GetFlagStatus(USARTx, USART_FLAG_RXNE) == RESET);
     return (uint8_t)USART_ReceiveData(USARTx);
