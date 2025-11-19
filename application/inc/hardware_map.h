@@ -3,6 +3,7 @@
 #ifndef __HARDWARE_H__
 #define __HARDWARE_H__
 
+/* Include header ----------------------------------------------------- */
 #include <stdint.h>
 #include <stddef.h>
 #include "stm32f4xx.h"
@@ -13,7 +14,9 @@
 #include "system_stm32f4xx.h"
 #include "stm32f4xx_it.h"
 
+#include "A7600C1.h"
 #include "systick.h"
+#include "usart_init.h"
 
 #define LED_ON 1
 #define LED_OFF 0
@@ -21,11 +24,6 @@
 #define HW_MAX_CHANNEL_SUPPORT      4
 #define HW_MAX_BUTTON      			(4 +1) // +1 for sensor pin
 #define HW_MAX_LED					2
-
-typedef struct {
-    GPIO_TypeDef*       GPIOx;
-    uint16_t            led_pin;
-} gpio_t;
 
 /* Define Led indicate status (Pair, reset default) */
 #define LED_GREEN_NETWORK_PIN GPIO_Pin_9
@@ -97,12 +95,11 @@ typedef struct {
 #define SIM_PWKEY_Pin GPIO_Pin_8
 #define SIM_PWKEY_GPIO GPIOA
 
-#define SIM_PWKEY_LOW() GPIO_SetBits(SIM_PWKEY_GPIO, SIM_PWKEY_Pin)
-#define SIM_PWKEY_HIGH() GPIO_ResetBits(SIM_PWKEY_GPIO, SIM_PWKEY_Pin)
+#define SIM_PWKEY_LOW() GPIO_ResetBits(SIM_PWKEY_GPIO, SIM_PWKEY_Pin)
+#define SIM_PWKEY_HIGH() GPIO_SetBits(SIM_PWKEY_GPIO, SIM_PWKEY_Pin)
 
 /* system */
 void hardware_init(void);
-// uint32_t sys_get_tick_ms();
 
 /* button */
 uint32_t button_read(uint32_t pin);
@@ -116,6 +113,7 @@ uint8_t switch_read(uint8_t index);
 
 /* Bdang code ---------------------------------------------------*/
 void led_green_init(void);
+void led_blue_init(void);
 void led_green_blink(uint32_t ms);
 
 #endif

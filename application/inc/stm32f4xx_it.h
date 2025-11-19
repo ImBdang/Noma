@@ -37,11 +37,15 @@ SOFTWARE.
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx.h"
+#include "misc.h"
+#include "stm32f4xx_usart.h"
+#include "datastructure.h"
 
 /* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/
 /* Exported macro ------------------------------------------------------------*/
 /* Exported functions ------------------------------------------------------- */
+/* Global variables ----------------------------------------------------------*/
 
 void NMI_Handler(void);
 void HardFault_Handler(void);
@@ -52,6 +56,7 @@ void SVC_Handler(void);
 void DebugMon_Handler(void);
 void PendSV_Handler(void);
 void SysTick_Handler(void);
+void USART1_IRQHandler(void);
 
 #ifdef __cplusplus
 }

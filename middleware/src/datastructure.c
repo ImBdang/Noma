@@ -9,7 +9,7 @@
  * 
  * @retval None
  */
-void init_ring_buffer(Ring_buffer* ring_buffer, uint16_t* buffer, size_t size){
+void init_ring_buffer(Ring_buffer* ring_buffer, uint8_t* buffer, size_t size){
     if (size < 2 || !ring_buffer || !buffer) return; 
     ring_buffer->buffer = buffer;
     ring_buffer->size = size;
@@ -26,7 +26,7 @@ void init_ring_buffer(Ring_buffer* ring_buffer, uint16_t* buffer, size_t size){
  * @retval 0 if is full
  * @retval 1 if is success
  */
-uint8_t enqueue_ring_buffer(Ring_buffer* ring_buffer, uint16_t data){
+uint8_t enqueue_ring_buffer(Ring_buffer* ring_buffer, uint8_t data){
     if (ring_isFull(ring_buffer))
         return 0;
     ring_buffer->buffer[ring_buffer->head] = data;
@@ -43,7 +43,7 @@ uint8_t enqueue_ring_buffer(Ring_buffer* ring_buffer, uint16_t data){
  * @retval 0 if is empty
  * @retval 1 if it success
  */
-uint8_t dequeue_ring_buffer(Ring_buffer* ring_buffer, uint16_t* data_return){
+uint8_t dequeue_ring_buffer(Ring_buffer* ring_buffer, uint8_t* data_return){
     if (ring_isEmpty(ring_buffer))
         return 0;
     *data_return = ring_buffer->buffer[ring_buffer->tail];
