@@ -29,6 +29,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx_it.h"
+extern volatile uint32_t msTicks;
 
 /** @addtogroup Template_Project
   * @{

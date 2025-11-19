@@ -4,13 +4,12 @@
  * @note This code was created for my custom module, so that why its name led green
  */
 #include "hardware.h"
-
-volatile uint32_t msTicks = 0;
+#include "systick.h"
 
 int main(void) {
-
-  led_green_init();
-  while (1) {
-    led_green_blink(1000);
-  }
+    init_systick(1000);
+    led_green_init();
+    while (1) {
+        led_green_blink(1000);
+    }
 }

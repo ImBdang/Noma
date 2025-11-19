@@ -1,4 +1,4 @@
-#include "hardware.h"
+#include "hardware_map.h"
 
 /**
  * @brief Init GPIO_9, PORT_B, 25Mhz speed, mode out, NOPULL
@@ -14,7 +14,6 @@ void led_green_init(void){
     GPIO_InitStruct.GPIO_OType = GPIO_OType_PP;
     GPIO_InitStruct.GPIO_PuPd = GPIO_PuPd_NOPULL;
     GPIO_Init(LED_4G_PORT, &GPIO_InitStruct);
-    bdang_init_systick(1000); // This should not be in here, but its fine
 }
 
 /**
@@ -25,9 +24,8 @@ void led_green_init(void){
  * @retval None
  */
 void led_green_blink(uint32_t ms){
-    // bdang_init_systick(1000);
     GPIO_SetBits(LED_4G_PORT, LED_4G_PIN);
-    // delay_ms(ms);
-    // GPIO_ResetBits(LED_4G_PORT, LED_4G_PIN);
-    // delay_ms(ms);
+    delay_ms(ms);
+    GPIO_ResetBits(LED_4G_PORT, LED_4G_PIN);
+    delay_ms(ms);
 }

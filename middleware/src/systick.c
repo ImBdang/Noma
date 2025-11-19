@@ -1,8 +1,10 @@
-#include "bdang_regular_func.h"
+#include "systick.h"
 
-void bdang_init_systick(uint32_t tick_hz){
+volatile uint32_t msTicks = 0;
+
+void init_systick(uint32_t ms){
     SystemCoreClockUpdate();
-    if (SysTick_Config(SystemCoreClock / tick_hz) != 0) {
+    if (SysTick_Config(SystemCoreClock / ms) != 0) {
         while(1); 
     }
 }

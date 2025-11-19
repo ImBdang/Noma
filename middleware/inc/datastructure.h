@@ -1,5 +1,5 @@
-#ifndef __BDANG_DATASTRUCTURE__
-#define __BDANG_DATASTRUCTURE__
+#ifndef __DATASTRUCTURE__
+#define __DATASTRUCTURE__
 
 #include <stdint.h>
 #include <stddef.h>
@@ -25,6 +25,6 @@ uint8_t enqueue_ring_buffer(Ring_buffer* ring_buffer, uint16_t data);
 uint8_t dequeue_ring_buffer(Ring_buffer* ring_buffer, uint16_t* data_return);
 /* --------------------------------------------------------------------------- */
 
-#endif
+#endif /* __DATASTRUCTURE__ */
 
 
