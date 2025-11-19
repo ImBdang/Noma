@@ -10,7 +10,7 @@
 
 
 /* API declaratations ------------------------------------------ */
-void init_systick(uint32_t ms);
+void systick_init(uint32_t ms);
 uint32_t get_systick_ms(void);
 void delay_ms(uint32_t ms);
 uint32_t get_systick_ms(void);

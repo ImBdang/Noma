@@ -109,3 +109,14 @@ void usart_init(usart_c* cfg) {
     USART_Cmd(cfg->USARTx, ENABLE);
 }
 
+void usart_sendstring(USART_TypeDef *USARTx, const char *str) {
+    while (*str) {
+        USART_SendData(USARTx, *str++);
+        while (USART_GetFlagStatus(USARTx, USART_FLAG_TXE) == RESET);
+    }
+}
+
+uint8_t usart_receive(USART_TypeDef* USARTx) {
+    while (USART_GetFlagStatus(USARTx, USART_FLAG_RXNE) == RESET);
+    return (uint8_t)USART_ReceiveData(USARTx);
+}

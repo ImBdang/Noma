@@ -26,5 +26,7 @@ typedef struct {
 
 /* API declrations --------------------------------------------------------- */
 void usart_init(usart_c* cfg); 
+void usart_sendstring(USART_TypeDef *USARTx, const char *str);
+uint8_t usart_receive(USART_TypeDef* USARTx);
 
 #endif /* __USART__ */
