@@ -3,7 +3,7 @@
  * 
  * @note This code was created for my custom module, so that why its name led green
  */
-#include "hardware.h"
+#include "hardware_map.h"
 #include "systick.h"
 
 int main(void) {
