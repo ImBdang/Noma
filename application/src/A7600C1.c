@@ -5,20 +5,16 @@
  */
 void A7600_PowerOn(void) {
     usart_sendstring(USART2, "Power ON sequence start\r\n");
-    
-    // Đảm bảo PWKEY HIGH ban đầu
     SIM_PWKEY_HIGH();
     delay_ms(500);
     
-    // Kéo LOW 500ms
     SIM_PWKEY_LOW();
     usart_sendstring(USART2, "PWKEY LOW\r\n");
     delay_ms(500);
     
-    // Thả về HIGH
     SIM_PWKEY_HIGH();
     usart_sendstring(USART2, "PWKEY HIGH\r\n");
-    delay_ms(500);
+    delay_ms(3000);
 }
 /**
  * @brief   Receive 1 byte 
@@ -41,28 +37,23 @@ uint8_t UART_ReceiveByte(uint8_t* data) {
  * @retval  1 is OK
  * @retval  0 is NOT OK
  */
-
 uint8_t A7600_CheckOK(void) {
     char response[256];
-    memset(response, 0, sizeof(response)); // Xóa buffer
+    memset(response, 0, sizeof(response)); 
     uint16_t idx = 0;
-    uint32_t timeout = 5000; // Tăng lên 5s
+    uint32_t timeout = 5000; 
     uint32_t start_time = get_systick_ms();
 
-    // Xóa UART buffer
     while(USART_GetFlagStatus(USART1, USART_FLAG_RXNE) == SET) {
         USART_ReceiveData(USART1);
     }
 
-    // Gửi AT
     usart_sendstring(USART1, "AT\r\n");
-    usart_sendstring(USART2, ">>> AT\r\n");
+    usart_sendstring(USART2, ">> AT\r\n");
 
     while ((get_systick_ms() - start_time) < timeout) {
         if (USART_GetFlagStatus(USART1, USART_FLAG_RXNE) == SET) {
             uint8_t c = (uint8_t)USART_ReceiveData(USART1);
-            
-            // Echo ra USART2
             USART_SendData(USART2, c);
             while(USART_GetFlagStatus(USART2, USART_FLAG_TXE) == RESET);
             
@@ -70,17 +61,50 @@ uint8_t A7600_CheckOK(void) {
                 response[idx++] = c;
                 response[idx] = '\0';
             }
-            
-            // Check cho "OK"
             if (strstr(response, "OK") != NULL) {
-                usart_sendstring(USART2, "\r\n<<< OK FOUND!\r\n");
                 return 1;
             }
         }
     }
     
-    usart_sendstring(USART2, "\r\n<<< TIMEOUT\r\n");
+    usart_sendstring(USART2, "\r\n<< TIMEOUT\r\n");
     return 0;
+}
+
+
+void AT_SendCmd(char* command) {
+    char response[256];
+    memset(response, 0, sizeof(response)); 
+    uint16_t idx = 0;
+    uint32_t timeout = 10000; 
+    uint32_t start_time = get_systick_ms();
+    
+    while(USART_GetFlagStatus(USART1, USART_FLAG_RXNE) == SET) {
+        USART_ReceiveData(USART1); 
+    }
+    
+    usart_sendstring(USART1, command);
+    usart_sendstring(USART1, "\r\n");
+    usart_sendstring(USART2, ">> ");
+    usart_sendstring(USART2, command);
+    usart_sendstring(USART2, "\r\n");
+
+    while ((get_systick_ms() - start_time) < timeout) {
+        if (USART_GetFlagStatus(USART1, USART_FLAG_RXNE) == SET) {
+            uint8_t c = (uint8_t)USART_ReceiveData(USART1);
+            USART_SendData(USART2, c); 
+            while(USART_GetFlagStatus(USART2, USART_FLAG_TXE) == RESET);
+            
+            if (idx < sizeof(response)-1) {
+                response[idx++] = c;
+                response[idx] = '\0';
+            }
+            
+            if (strstr(response, "\r\nOK\r\n") != NULL || strstr(response, "\r\nERROR\r\n") != NULL) {
+                break; 
+            }
+        }
+    }
 }
 
 /**
@@ -93,7 +117,7 @@ uint8_t A7600_SimpleInit(void) {
     A7600_PowerOn();
     delay_ms(15000);
     if(A7600_CheckOK()) {
-        usart_sendstring(USART2, "AT is OK\n");
+        usart_sendstring(USART2, "\nAT is OK\n");
         return 1; 
     }
     usart_sendstring(USART2, "AT is not response\n");

@@ -2,17 +2,19 @@
 #include "usart.h"
 #include "misc.h"
 #include "datastructure.h"
+#include "clock.h"
 
 void bdang_init_clock(void);
 
 int main(void) {
-    bdang_init_clock();
+
+  bdang_init_clock();
     hardware_init(); 
     if(A7600_SimpleInit()) {
       hw_led_write(LED_4G_INDEX, LED_ON);
-      while(1){
-        delay_ms(123);
-      }
+      AT_SendCmd("ATE0");
+      AT_SendCmd("AT+CREG?");
+      
     } 
     else {
         while(1) {
@@ -23,6 +25,21 @@ int main(void) {
         }
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 void bdang_init_clock(void){
   RCC_HSICmd(ENABLE);
