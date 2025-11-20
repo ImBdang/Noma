@@ -69,9 +69,9 @@ void hw_led_write(uint8_t index, uint8_t state){
  * @note    Init usart1, 2, led green, systick, A7600 GPIO
  */
 void hardware_init(void){
+    systick_init(1000);
     usart1_init();
     usart2_init();
-    systick_init(1000);
     led_green_init();
     A7600_GPIO_Init();
 }

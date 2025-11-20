@@ -2,9 +2,8 @@
 
 volatile uint32_t msTicks = 0;
 
-void systick_init(uint32_t ms){
-    SystemCoreClockUpdate();
-    if (SysTick_Config(SystemCoreClock / ms) != 0) {
+void systick_init(uint32_t us){
+    if (SysTick_Config(SystemCoreClock / us) != 0) {
         while(1); 
     }
 }

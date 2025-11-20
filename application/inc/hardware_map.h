@@ -12,7 +12,7 @@
 #include "stm32f4xx_usart.h"
 #include "core_cm4.h"
 #include "system_stm32f4xx.h"
-#include "stm32f4xx_it.h"
+// #include "stm32f4xx_it.h"
 
 #include "A7600C1.h"
 #include "systick.h"

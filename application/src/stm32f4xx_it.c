@@ -146,13 +146,6 @@ void SysTick_Handler(void){
   msTicks++;
 }
 
-void USART1_IRQHandler(void) {
-  if (USART_GetITStatus(USART1, USART_IT_RXNE)) {
-    uint16_t data = USART_ReceiveData(USART1);
-    enqueue_ring_buffer(&rx_ring, data);
-  }
-}
-
 /******************************************************************************/
 /*                 STM32F4xx Peripherals Interrupt Handlers                   */
 /*  Add here the Interrupt Handler for the used peripheral(s) (PPP), for the  */
