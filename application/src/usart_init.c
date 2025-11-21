@@ -51,3 +51,15 @@ void usart1_interrupt_init(void){
     };
     NVIC_Init(&nvic_config);
 }
+
+void usart2_interrupt_init(void){
+    USART_ITConfig(USART2, USART_IT_RXNE, ENABLE);
+
+    NVIC_InitTypeDef nvic_config = {
+        .NVIC_IRQChannel = USART2_IRQn,
+        .NVIC_IRQChannelPreemptionPriority = 0,
+        .NVIC_IRQChannelSubPriority = 0,
+        .NVIC_IRQChannelCmd = ENABLE
+    };
+    NVIC_Init(&nvic_config);
+}

@@ -27,6 +27,7 @@ typedef enum {
     NETWORK_REG_STATE,
     READY_STATE,
     SEND_EXCMD_STATE,
+    SMS_STATE,
     ERROR_STATE
 } module_state_t;
 

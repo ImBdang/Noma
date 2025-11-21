@@ -31,7 +31,7 @@
 #include "stm32f4xx_it.h"
 extern volatile uint32_t msTicks;
 extern Ring_buffer usart1_rx_ring;
-extern uint8_t flag_new;
+// extern Ring_buffer usart2_rx_ring;
 
 
 /** @addtogroup Template_Project
@@ -152,6 +152,13 @@ void USART1_IRQHandler(void) {
     enqueue_ring_buffer(&usart1_rx_ring, data);
   }
 }
+
+// void USART2_IRQHandler(void) {
+//   if (USART_GetITStatus(USART2, USART_IT_RXNE)) {
+//     uint8_t data = USART_ReceiveData(USART2);
+//     enqueue_ring_buffer(&usart2_rx_ring, data);
+//   }
+// }
 
 /******************************************************************************/
 /*                 STM32F4xx Peripherals Interrupt Handlers                   */

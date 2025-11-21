@@ -104,7 +104,7 @@ void line_parse(Ring_buffer* ring, Queue_line* line, uint8_t* queue_idx) {
     }
 }
 
-uint8_t line_search(Queue_line* queue_response, uint8_t queue_idx, char* looking_cmd){
+uint8_t line_search(Queue_line* queue_response, uint8_t queue_idx, uint8_t* cmd_index, char* looking_cmd){
     for (uint8_t i=0; i< queue_idx; i++){
         if (strstr(queue_response[i].line_cmd, looking_cmd)) {
             return 1;

@@ -33,7 +33,7 @@ typedef struct{
 } Queue_line;
 
 void line_parse(Ring_buffer* ring, Queue_line* line, uint8_t* queue_idx);
-uint8_t line_search(Queue_line* queue_response, uint8_t queue_idx, char* looking_cmd);
+uint8_t line_search(Queue_line* queue_response, uint8_t queue_idx, uint8_t* cmd_index, char* looking_cmd);
 void line_clear_queue(uint8_t* queue_idx);
 
 #endif /* __DATASTRUCTURE__ */
