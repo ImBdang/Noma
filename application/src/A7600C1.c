@@ -4,17 +4,25 @@
  * @brief   Power on A7600C1
  */
 void A7600_PowerOn(void) {
-    usart_sendstring(USART2, "Power ON sequence start\r\n");
     SIM_PWKEY_HIGH();
     delay_ms(500);
     
     SIM_PWKEY_LOW();
-    usart_sendstring(USART2, "PWKEY LOW\r\n");
     delay_ms(500);
     
     SIM_PWKEY_HIGH();
-    usart_sendstring(USART2, "PWKEY HIGH\r\n");
-    // delay_ms(10000);
+}
+
+void A7600_PowerOff(void)
+{
+    GPIO_SetBits(GPIOA, GPIO_Pin_0);
+    delay_ms(50);
+
+    GPIO_ResetBits(GPIOA, GPIO_Pin_0);
+    delay_ms(1800);   
+
+    GPIO_SetBits(GPIOA, GPIO_Pin_0);
+    delay_ms(4000);
 }
 /**
  * @brief   Receive 1 byte 
@@ -78,38 +86,11 @@ uint8_t A7600_CheckOK(void) {
  * @param   command: command that you need to send
  */
 void AT_SendCmd(char* command) {
-    char response[256];
-    memset(response, 0, sizeof(response)); 
-    uint16_t idx = 0;
-    uint32_t timeout = 10000; 
-    uint32_t start_time = get_systick_ms();
-    
-    while(USART_GetFlagStatus(USART1, USART_FLAG_RXNE) == SET) {
-        USART_ReceiveData(USART1); 
-    }
-    
     usart_sendstring(USART1, command);
     usart_sendstring(USART1, "\r\n");
     usart_sendstring(USART2, ">> ");
     usart_sendstring(USART2, command);
     usart_sendstring(USART2, "\r\n");
-
-    while ((get_systick_ms() - start_time) < timeout) {
-        if (USART_GetFlagStatus(USART1, USART_FLAG_RXNE) == SET) {
-            uint8_t c = (uint8_t)USART_ReceiveData(USART1);
-            USART_SendData(USART2, c); 
-            while(USART_GetFlagStatus(USART2, USART_FLAG_TXE) == RESET);
-            
-            if (idx < sizeof(response)-1) {
-                response[idx++] = c;
-                response[idx] = '\0';
-            }
-            
-            if (strstr(response, "\r\nOK\r\n") != NULL || strstr(response, "\r\nERROR\r\n") != NULL) {
-                break; 
-            }
-        }
-    }
 }
 
 /**

@@ -76,6 +76,10 @@ uint8_t ring_isEmpty(Ring_buffer *ring){
 }
 
 
+void clear_ring_buffer(Ring_buffer* ring_buffer){
+    ring_buffer->head = 0;
+    ring_buffer->tail = 0;
+}
 
 void line_parse(Ring_buffer* ring, Queue_line* line, uint8_t* queue_idx) {
     static char temp_line[32];
@@ -107,4 +111,8 @@ uint8_t line_search(Queue_line* queue_response, uint8_t queue_idx, char* looking
         }
     }
     return 0;
+}
+
+void line_clear_queue(uint8_t* queue_idx) {
+    *queue_idx = 0;
 }

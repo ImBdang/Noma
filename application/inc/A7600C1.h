@@ -16,7 +16,9 @@ typedef enum {
 } sim_state_t;
 
 
+
 void A7600_PowerOn(void);
+void A7600_PowerOff(void);
 uint8_t UART_ReceiveByte(uint8_t* data);
 uint8_t A7600_CheckOK(void);
 uint8_t A7600_SimpleInit(void);

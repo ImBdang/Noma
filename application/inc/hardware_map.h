@@ -19,12 +19,16 @@
 #include "gpio.h"
 
 typedef enum {
-    POWER_ON,
-    WAIT_APP_RDY,
-    WAIT_SIM_READY,
-    WAIT_NETWORK,
-    WAIT_PDP,
-    READY
+    POWER_ON_STATE,
+    WAIT_APP_RDY_STATE,
+    WAIT_SIM_READY_STATE,
+    WAIT_AT_OK_STATE,
+    CONFIG_ECHO_OFF_STATE,
+    CONFIG_CHECK_SIM_STATE,
+    CONFIG_PDP_STATE,
+    READY_STATE,
+    SEND_CMD_STATE,
+    ERROR_STATE
 } module_state_t;
 
 #define LED_ON 1
