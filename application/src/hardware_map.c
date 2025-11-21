@@ -24,13 +24,7 @@ void led_green_init(void){
  * @retval None
  */
 void led_green_blink(uint32_t ms){
-    GPIO_SetBits(LED_4G_PORT, LED_4G_PIN);
-    delay_ms(ms);
-    GPIO_ResetBits(LED_4G_PORT, LED_4G_PIN);
-    delay_ms(ms);
-    GPIO_SetBits(LED_4G_PORT, LED_4G_PIN);
-    delay_ms(ms);
-    GPIO_ResetBits(LED_4G_PORT, LED_4G_PIN);
+    GPIO_ToggleBits(LED_4G_PORT, LED_4G_PIN);
     delay_ms(ms);
 }
 
