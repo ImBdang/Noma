@@ -14,7 +14,7 @@ void A7600_PowerOn(void) {
     
     SIM_PWKEY_HIGH();
     usart_sendstring(USART2, "PWKEY HIGH\r\n");
-    delay_ms(3000);
+    // delay_ms(10000);
 }
 /**
  * @brief   Receive 1 byte 
@@ -52,19 +52,19 @@ uint8_t A7600_CheckOK(void) {
     usart_sendstring(USART2, ">> AT\r\n");
 
     while ((get_systick_ms() - start_time) < timeout) {
-        if (USART_GetFlagStatus(USART1, USART_FLAG_RXNE) == SET) {
-            uint8_t c = (uint8_t)USART_ReceiveData(USART1);
-            USART_SendData(USART2, c);
-            while(USART_GetFlagStatus(USART2, USART_FLAG_TXE) == RESET);
+        // if (USART_GetFlagStatus(USART1, USART_FLAG_RXNE) == SET) {
+        //     uint8_t c = (uint8_t)USART_ReceiveData(USART1);
+        //     USART_SendData(USART2, c);
+        //     while(USART_GetFlagStatus(USART2, USART_FLAG_TXE) == RESET);
             
-            if (idx < sizeof(response)-1) {
-                response[idx++] = c;
-                response[idx] = '\0';
-            }
-            if (strstr(response, "OK") != NULL) {
-                return 1;
-            }
-        }
+        //     if (idx < sizeof(response)-1) {
+        //         response[idx++] = c;
+        //         response[idx] = '\0';
+        //     }
+        //     if (strstr(response, "OK") != NULL) {
+        //         return 1;
+        //     }
+        // }
     }
     
     usart_sendstring(USART2, "\r\n<< TIMEOUT\r\n");
@@ -72,6 +72,11 @@ uint8_t A7600_CheckOK(void) {
 }
 
 
+/**
+ * @brief   Send AT Command
+ * 
+ * @param   command: command that you need to send
+ */
 void AT_SendCmd(char* command) {
     char response[256];
     memset(response, 0, sizeof(response)); 
@@ -124,18 +129,3 @@ uint8_t A7600_SimpleInit(void) {
     return 0; 
 }
 
-void A7600_GPIO_Init(void) {
-    GPIO_InitTypeDef gpio_c = {
-        .GPIO_Pin = SIM_PWKEY_Pin,
-        .GPIO_Mode = GPIO_Mode_OUT,
-        .GPIO_OType = GPIO_OType_PP,
-        .GPIO_Speed = GPIO_Speed_50MHz,
-        .GPIO_PuPd = GPIO_PuPd_NOPULL 
-    };
-    init_gpio(SIM_PWKEY_GPIO, &gpio_c);
-
-    gpio_c.GPIO_Pin = SIM_STATUS_Pin;
-    gpio_c.GPIO_Mode = GPIO_Mode_IN;
-    gpio_c.GPIO_PuPd = GPIO_PuPd_DOWN;
-    init_gpio(SIM_STATUS_GPIO, &gpio_c);
-}

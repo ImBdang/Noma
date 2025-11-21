@@ -14,6 +14,10 @@ void usart1_init(void){
         .baudrate = 115200
     };
     usart_init(&usart_config);
+
+    while (USART_GetFlagStatus(USART1, USART_FLAG_RXNE)) {
+        (void)USART_ReceiveData(USART1);
+    }
 }
 
 void usart2_init(void){
@@ -30,4 +34,20 @@ void usart2_init(void){
         .baudrate = 115200
     };
     usart_init(&usart_config);
+
+    while (USART_GetFlagStatus(USART2, USART_FLAG_RXNE)) {
+        (void)USART_ReceiveData(USART2);
+    }
+}
+
+void usart1_interrupt_init(void){
+    USART_ITConfig(USART1, USART_IT_RXNE, ENABLE);
+
+    NVIC_InitTypeDef nvic_config = {
+        .NVIC_IRQChannel = USART1_IRQn,
+        .NVIC_IRQChannelPreemptionPriority = 0,
+        .NVIC_IRQChannelSubPriority = 0,
+        .NVIC_IRQChannelCmd = ENABLE
+    };
+    NVIC_Init(&nvic_config);
 }

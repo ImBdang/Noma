@@ -12,11 +12,20 @@
 #include "stm32f4xx_usart.h"
 #include "core_cm4.h"
 #include "system_stm32f4xx.h"
-// #include "stm32f4xx_it.h"
+#include "stm32f4xx_it.h"
 
-#include "A7600C1.h"
 #include "systick.h"
 #include "usart_init.h"
+#include "gpio.h"
+
+typedef enum {
+    POWER_ON,
+    WAIT_APP_RDY,
+    WAIT_SIM_READY,
+    WAIT_NETWORK,
+    WAIT_PDP,
+    READY
+} module_state_t;
 
 #define LED_ON 1
 #define LED_OFF 0
@@ -115,5 +124,7 @@ uint8_t switch_read(uint8_t index);
 void led_green_init(void);
 void led_blue_init(void);
 void led_green_blink(uint32_t ms);
+void A7600_GPIO_Init(void);
+void bdang_init_clock(void);
 
 #endif

@@ -2,62 +2,50 @@
 #include "usart.h"
 #include "misc.h"
 #include "datastructure.h"
+#include "A7600C1.h"
 #include "clock.h"
 
-void bdang_init_clock(void);
+Ring_buffer usart1_rx_ring;
+
+uint8_t buffer_rx_usart1[255] = {0};
+module_state_t current_state = POWER_ON;
+
+Queue_line queue_response[64];
+uint8_t queue_idx = 0;
 
 int main(void) {
+  bdang_init_clock();                                         
 
-  bdang_init_clock();
-    hardware_init(); 
-    if(A7600_SimpleInit()) {
-      hw_led_write(LED_4G_INDEX, LED_ON);
-      AT_SendCmd("ATE0");
-      AT_SendCmd("AT+CREG?");
-      
-    } 
-    else {
-        while(1) {
-            hw_led_write(LED_4G_INDEX, LED_ON);
-            delay_ms(200);
-            hw_led_write(LED_4G_INDEX, LED_OFF);
-            delay_ms(200);
-        }
+  init_ring_buffer(&usart1_rx_ring, buffer_rx_usart1, 255);
+  hardware_init(); 
+  delay_ms(2000);
+  
+
+  while(1){
+
+    line_parse(&usart1_rx_ring, queue_response, &queue_idx);
+
+    switch (current_state)
+    {
+    case POWER_ON:
+      A7600_PowerOn();
+      current_state = WAIT_APP_RDY;
+      break;
+
+    case WAIT_APP_RDY:
+      uint8_t tmp = line_search(queue_response, queue_idx, "*ATREADY: 1");
+      if (tmp){
+        current_state = WAIT_SIM_READY;
+      }
+      break;
+
+    case WAIT_SIM_READY:
+      GPIO_SetBits(LED_4G_PORT, LED_4G_PIN);
+      break;
+
+    default:
+      break;
     }
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-void bdang_init_clock(void){
-  RCC_HSICmd(ENABLE);
-  while(RCC_GetFlagStatus(RCC_FLAG_HSIRDY) == RESET);
-  RCC_PLLConfig(
-    RCC_PLLSource_HSI,
-    8,                            // M: 16/8 = 2MHz
-    192,                          // N: 2×192 = 384MHz 
-    6,                            // P: 384/6 = 64MHz 
-    8                             // Q: 384/8 = 48MHz 
-  );
-  RCC_PLLCmd(ENABLE);
-  while(RCC_GetFlagStatus(RCC_FLAG_PLLRDY) == RESET){}; 
-  FLASH_SetLatency(FLASH_ACR_LATENCY_2WS);
-  RCC_HCLKConfig(RCC_SYSCLK_Div1);
-  RCC_PCLK1Config(RCC_HCLK_Div2);
-  RCC_PCLK2Config(RCC_HCLK_Div1);
-  RCC_SYSCLKConfig(RCC_SYSCLKSource_PLLCLK);
-  SystemCoreClockUpdate();
+  }
 }
 

@@ -3,8 +3,11 @@
 
 /* Include header ------------------------------------------------ */
 #include "usart.h"
+#include "misc.h"
 
 void usart1_init(void);
 void usart2_init(void);
+
+void usart1_interrupt_init(void);
 
 #endif /* __USARTINIT__ */

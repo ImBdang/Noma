@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 #include <stddef.h>
-
+#include <string.h>
 
 /**
  * @brief Basic ring buffer
@@ -25,6 +25,12 @@ uint8_t enqueue_ring_buffer(Ring_buffer* ring_buffer, uint8_t data);
 uint8_t dequeue_ring_buffer(Ring_buffer* ring_buffer, uint8_t* data_return);
 /* --------------------------------------------------------------------------- */
 
+
+typedef struct{
+    char line_cmd[32];
+} Queue_line;
+
+void line_parse(Ring_buffer* ring, Queue_line* line, uint8_t* queue_idx);
+uint8_t line_search(Queue_line* queue_response, uint8_t queue_idx, char* looking_cmd);
+
 #endif /* __DATASTRUCTURE__ */
-
-

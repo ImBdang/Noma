@@ -74,3 +74,37 @@ uint8_t ring_isFull(Ring_buffer *ring){
 uint8_t ring_isEmpty(Ring_buffer *ring){
     return ring->head == ring->tail;
 }
+
+
+
+void line_parse(Ring_buffer* ring, Queue_line* line, uint8_t* queue_idx) {
+    static char temp_line[32];
+    static size_t idx = 0;
+    uint8_t c;
+
+    while (!ring_isEmpty(ring)) {
+        dequeue_ring_buffer(ring, &c);
+        if (c == 0xFF) continue;
+
+        if (c != '\r' && c != '\n') {
+            if (idx < sizeof(temp_line) - 1) {
+                temp_line[idx++] = c;
+            }
+        } else if (idx > 0) {
+            temp_line[idx] = '\0';
+            strncpy(line[*queue_idx].line_cmd, temp_line, sizeof(line->line_cmd));
+            idx = 0;
+            (*queue_idx)++;
+            break; 
+        }
+    }
+}
+
+uint8_t line_search(Queue_line* queue_response, uint8_t queue_idx, char* looking_cmd){
+    for (uint8_t i=0; i< queue_idx; i++){
+        if (strstr(queue_response[i].line_cmd, looking_cmd)) {
+            return 1;
+        }
+    }
+    return 0;
+}

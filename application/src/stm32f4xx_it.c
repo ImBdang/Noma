@@ -30,8 +30,8 @@
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx_it.h"
 extern volatile uint32_t msTicks;
-extern Ring_buffer tx_ring;
-extern Ring_buffer rx_ring;
+extern Ring_buffer usart1_rx_ring;
+extern uint8_t flag_new;
 
 
 /** @addtogroup Template_Project
@@ -144,6 +144,13 @@ void PendSV_Handler(void)
   */
 void SysTick_Handler(void){
   msTicks++;
+}
+
+void USART1_IRQHandler(void) {
+  if (USART_GetITStatus(USART1, USART_IT_RXNE)) {
+    uint8_t data = USART_ReceiveData(USART1);
+    enqueue_ring_buffer(&usart1_rx_ring, data);
+  }
 }
 
 /******************************************************************************/
