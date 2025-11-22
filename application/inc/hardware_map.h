@@ -28,7 +28,8 @@ typedef enum {
     READY_STATE,
     SEND_EXCMD_STATE,
     SMS_STATE,
-    ERROR_STATE
+    ERROR_STATE,
+    DEBUG_STATE
 } module_state_t;
 
 #define LED_ON 1

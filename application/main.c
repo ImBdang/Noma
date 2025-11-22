@@ -5,6 +5,7 @@
 #include "A7600C1.h"
 #include "clock.h"
 #include "string_handle.h"
+#include "config_parameters.h"
 
 /* TYPEDEF STRUCT STATE --------------------------------------------------------------------------------- */
 typedef struct {
@@ -12,14 +13,6 @@ typedef struct {
   uint32_t timeout_ms;
   uint32_t start_time;
 } state_context_t;
-
-/* DEFINE ----------------------------------------------------------------------------------------------- */
-#define TIMEOUT_WAIT_APP_RDY  7000
-#define TIMEOUT_WAIT_SIM_RDY  7000
-#define TIMEOUT_WAIT_AT_OK    7000
-#define TIMEOUT_WAIT_CONFIG   7000
-#define MAX_RETRY             3
-#define MAX_MASTER_RETRY      5
 
 
 
@@ -66,76 +59,11 @@ int main(void) {
         usart_sendstring(USART2, "Power ON, switching to WAIT_APP_RDY_STATE\r\n");
 
         flag_send = 1;
-        state_context.timeout_ms = TIMEOUT_WAIT_APP_RDY;
+        state_context.timeout_ms = TIMEOUT_WAIT_AT_OK;
         state_context.start_time = get_systick_ms();
         state_context.retry_count = 0;
 
-        current_state = WAIT_APP_RDY_STATE;
-        break;
-
-
-      /* WAIT APP READY STATE ------------------------------------------------------------------ */
-      case WAIT_APP_RDY_STATE:
-        if (line_search(queue_response, queue_idx, &searched_idx,"*ATREADY: 1")) {
-          usart_sendstring(USART2, "APP is READY, switching to WAIT_SIM_READY_STATE\r\n");
-          clear_ring_buffer(&usart1_rx_ring);
-          line_clear_queue(&queue_idx);
-
-          flag_send = 1;
-          state_context.start_time = get_systick_ms();
-          state_context.timeout_ms = TIMEOUT_WAIT_SIM_RDY;
-          state_context.retry_count = 0;
-
-          current_state = WAIT_SIM_READY_STATE;
-        } 
-
-        else if ((get_systick_ms() - state_context.start_time) > TIMEOUT_WAIT_APP_RDY) {
-          state_context.retry_count++;
-          if (state_context.retry_count < MAX_RETRY) {
-            usart_sendstring(USART2, "Out of timeout, retry\r\n");
-
-            state_context.start_time = get_systick_ms();            //reset start time for new retry of state
-          }
-          else {
-            usart_sendstring(USART2, "Out of retry state, switching to ERROR STATE\r\n");
-            current_state = ERROR_STATE;
-          }
-        }
-        break;
-
-
-      /* WAIT SIM READY STATE ------------------------------------------------------------------ */
-      case WAIT_SIM_READY_STATE:
-        if (flag_send == 1){
-          AT_SendCmd("AT+CPIN?\r\n");
-          flag_send = 0;
-        }
-        led_green_blink(500);
-        if (line_search(queue_response, queue_idx,  &searched_idx,"+CPIN: READY")) {
-          usart_sendstring(USART2, "SIM is READY, switching to WAIT_AT_OK_STATE\r\n");
-          clear_ring_buffer(&usart1_rx_ring);
-          line_clear_queue(&queue_idx);
-
-          flag_send = 1;
-          state_context.start_time = get_systick_ms();
-          state_context.timeout_ms = TIMEOUT_WAIT_AT_OK;
-          state_context.retry_count = 0;
-
-          current_state = WAIT_AT_OK_STATE;
-        } 
-
-        else if ((get_systick_ms() - state_context.start_time) > TIMEOUT_WAIT_SIM_RDY) {
-          state_context.retry_count++;
-          if (state_context.retry_count < MAX_RETRY) {
-            usart_sendstring(USART2, "Out of timeout, retry\r\n");
-
-            state_context.start_time = get_systick_ms();            //reset start time for new retry of state
-          }
-          else {
-            usart_sendstring(USART2, "Out of retry state, switching to ERROR STATE\r\n");
-            current_state = ERROR_STATE;
-          }
-        }
+        current_state = WAIT_AT_OK_STATE;
         break;
 
 
@@ -154,10 +82,10 @@ int main(void) {
 
           flag_send = 1;
           state_context.start_time = get_systick_ms();
-          state_context.timeout_ms = 0;
+          state_context.timeout_ms = TIMEOUT_WAIT_SIM_RDY;
           state_context.retry_count = 0;
 
-          current_state = CONFIG_SIM_STATE;
+          current_state = WAIT_SIM_READY_STATE;
         } 
 
         else if ((get_systick_ms() - state_context.start_time) > TIMEOUT_WAIT_AT_OK) {
@@ -174,6 +102,74 @@ int main(void) {
           }
         }
         break;
+
+
+
+      /* WAIT APP READY STATE ------------------------------------------------------------------ */
+      // case WAIT_APP_RDY_STATE:
+      //   if (line_search(queue_response, queue_idx, &searched_idx,"*ATREADY: 1")) {
+      //     usart_sendstring(USART2, "APP is READY, switching to WAIT_SIM_READY_STATE\r\n");
+      //     clear_ring_buffer(&usart1_rx_ring);
+      //     line_clear_queue(&queue_idx);
+
+      //     flag_send = 1;
+      //     state_context.start_time = get_systick_ms();
+      //     state_context.timeout_ms = TIMEOUT_WAIT_SIM_RDY;
+      //     state_context.retry_count = 0;
+
+      //     current_state = WAIT_SIM_READY_STATE;
+      //   } 
+
+      //   else if ((get_systick_ms() - state_context.start_time) > TIMEOUT_WAIT_APP_RDY) {
+      //     state_context.retry_count++;
+      //     if (state_context.retry_count < MAX_RETRY) {
+      //       usart_sendstring(USART2, "Out of timeout, retry\r\n");
+
+      //       state_context.start_time = get_systick_ms();            //reset start time for new retry of state
+      //     }
+      //     else {
+      //       usart_sendstring(USART2, "Out of retry state, switching to ERROR STATE\r\n");
+      //       current_state = ERROR_STATE;
+      //     }
+      //   }
+      //   break;
+
+
+      /* WAIT SIM READY STATE ------------------------------------------------------------------ */
+      case WAIT_SIM_READY_STATE:
+        if (flag_send == 1){
+          AT_SendCmd("AT+CPIN?\r\n");
+          flag_send = 0;
+        }
+        led_green_blink(500);
+        if (line_search(queue_response, queue_idx,  &searched_idx,"+CPIN: READY")) {
+          usart_sendstring(USART2, "SIM is READY, switching to CONFIG_SIM_STATE\r\n");
+          clear_ring_buffer(&usart1_rx_ring);
+          line_clear_queue(&queue_idx);
+
+          flag_send = 1;
+          state_context.start_time = get_systick_ms();
+          state_context.timeout_ms = TIMEOUT_WAIT_CONFIG;
+          state_context.retry_count = 0;
+
+          current_state = CONFIG_SIM_STATE;
+        } 
+
+        else if ((get_systick_ms() - state_context.start_time) > TIMEOUT_WAIT_SIM_RDY) {
+          state_context.retry_count++;
+          if (state_context.retry_count < MAX_RETRY) {
+            usart_sendstring(USART2, "Out of timeout, retry\r\n");
+
+            state_context.start_time = get_systick_ms();            //reset start time for new retry of state
+          }
+          else {
+            usart_sendstring(USART2, "Out of retry state, switching to ERROR STATE\r\n");
+            current_state = ERROR_STATE;
+          }
+        }
+        break;
+
+
 
 
         /* CONFIG SIM STATE ------------------------------------------------------------------ */
@@ -223,6 +219,8 @@ int main(void) {
 
           if (line_search(queue_response, queue_idx,  &searched_idx,"+CREG: 0,1") || line_search(queue_response, queue_idx,  &searched_idx,"+CREG: 0,5")) {
             usart_sendstring(USART2, "Netowrk register success, switching to READY_STATE\r\n");
+            usart_sendstring(USART2, queue_response[searched_idx].line_cmd);
+            usart_sendstring(USART2, "\r\n");
             clear_ring_buffer(&usart1_rx_ring);
             line_clear_queue(&queue_idx);
 
@@ -253,10 +251,20 @@ int main(void) {
       /* READY STATE ----------------------------------------------------------------------------- */
       case READY_STATE:
         GPIO_SetBits(LED_4G_PORT, LED_4G_PIN);
+        
         if (flag_send == 1){
+          // AT_SendCmd("AT+CMGF=1\r\n");
+          // delay_ms(200);
+          // AT_SendCmd("AT+CMGS=\"+84837645067\"\r\n");
+          // delay_ms(200);
+          // AT_SendCmd("Hello");
+          // delay_ms(50);
+          // USART_SendData(USART1, 0x1A);
+          // delay_ms(500);
+
           strcpy(excmd, "AT+CMGF=1\r\n");
+          flag_send = 1;
           current_state = SEND_EXCMD_STATE;
-          flag_send = 0;
         }
         break;
 
@@ -268,8 +276,9 @@ int main(void) {
           if (strcmp(excmd_prefix, "+CMGF") == 0){
             flag_send = 1;
             state_context.start_time = get_systick_ms();
-            state_context.timeout_ms = 0;
+            state_context.timeout_ms = TIMEOUT_SMS_SEND;
             state_context.retry_count = 0;
+
             current_state = SMS_STATE;
             clear_ring_buffer(&usart1_rx_ring);
             line_clear_queue(&queue_idx);
@@ -294,7 +303,7 @@ int main(void) {
           current_state = READY_STATE;
         } 
 
-        else if ((get_systick_ms() - state_context.start_time) > TIMEOUT_WAIT_CONFIG) {
+        else if ((get_systick_ms() - state_context.start_time) > TIMEOUT_EXCMD_SEND) {
           flag_send = 1;
           state_context.retry_count++;
           if (state_context.retry_count < MAX_RETRY) {
@@ -318,8 +327,8 @@ int main(void) {
           flag_send = 0;
         }
         led_green_blink(200);
-
-        if (line_search(queue_response, queue_idx,  &searched_idx,"OK")) {
+        /* STEP 1: Wait for "OK" response after AT+CMGF=1 --------------------------------------- */
+        if (line_search(queue_response, queue_idx,  &searched_idx, "OK")) {
           usart_sendstring(USART2, "AT+CMGF is OK, setting phone number\r\n");
           clear_ring_buffer(&usart1_rx_ring);
           line_clear_queue(&queue_idx);
@@ -328,26 +337,33 @@ int main(void) {
           state_context.start_time = get_systick_ms();
           state_context.timeout_ms = 0;
           state_context.retry_count = 0;
-
-          strcpy(excmd, "AT+CMGS=\"+84837645067\"\r\n");
+          
+          /* If success switch command to AT+CMGS to set the phone number ---------------------- */
+          strcpy(excmd, "AT+CMGS=\"");
+          strcat(excmd, target_phone_number);
+          strcat(excmd, "\"\r\n");
         } 
+        /* STEP 2: Wait for ">" response after set phone number to type message ---------------- */
         else if (line_search(queue_response, queue_idx,  &searched_idx,">") && strcmp(excmd_prefix, "+CMGS") == 0) {
           usart_sendstring(USART2, "Phone number is setted, writing message\r\n");
+          usart_sendstring(USART2, queue_response[searched_idx].line_cmd);
+          usart_sendstring(USART2, "\r\n");
           clear_ring_buffer(&usart1_rx_ring);
           line_clear_queue(&queue_idx);
 
-          flag_send = 0;  //HERE
+          flag_send = 1;  /* Set here because after this step STATE will back to READY STATE --- */
           state_context.start_time = get_systick_ms();
           state_context.timeout_ms = 0;
           state_context.retry_count = 0;
 
-          AT_SendCmd("hello world");
+          /* Final step, send message then CTRL+Z to send -------------------------------------- */
+          AT_SendCmd(message);
           delay_ms(50); 
           USART_SendData(USART1, 0x1A); 
 
-          current_state = READY_STATE;
+          current_state = DEBUG_STATE;
         } 
-        else if ((get_systick_ms() - state_context.start_time) > TIMEOUT_WAIT_CONFIG) {
+        else if ((get_systick_ms() - state_context.start_time) > TIMEOUT_SMS_SEND) {
           flag_send = 1;
           state_context.retry_count++;
           if (state_context.retry_count < MAX_RETRY) {
@@ -362,15 +378,18 @@ int main(void) {
         }
         break;
 
+      case DEBUG_STATE:
+        flag_send = 0;
+        break;
 
       /* ERROR STATE ----------------------------------------------------------------------------- */
       case ERROR_STATE:
-        usart_sendstring(USART2, "ERROR STATE happened, trying to reboot. Back to POWER_ON_STATE\r\n");
         master_retry_count++;
         if (master_retry_count >= MAX_MASTER_RETRY){
           usart_sendstring(USART2, "OUT OF RETRY BOOT, PLEASE CONNTACT TO HUNONIC\r\n");
         }
         else{
+          usart_sendstring(USART2, "ERROR STATE happened, trying to reboot. Back to POWER_ON_STATE\r\n");
           A7600_PowerOff();
           current_state = POWER_ON_STATE;
         }
