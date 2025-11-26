@@ -1,17 +1,19 @@
+#include "stdbool.h"
 #include "modem_service.h"
 #include "clock_api.h"
 
-/*======================================================= MAIN ========================================================= */
+/*============================================== MAIN ================================================= */
 int main(void) {
 
-  bdang_init_clock();                                         
-
-  hardware_init(); 
-  delay_ms(2000);
-  
+  clock_init_64MHz_HSI();
+  systick_init(1000);
+  modem_init_service();
 
   while(1){
-    
+    bool tmp;
+    modem_process();
+    modem_service_process();
+    delay_ms(500);
   }
 }
 

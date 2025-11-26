@@ -40,7 +40,6 @@ SOFTWARE.
 #include "misc.h"
 #include "stm32f4xx_usart.h"
 #include "stm32f4xx_exti.h"
-#include "hardware_map.h"
 #include "lwrb.h"
 
 /* Exported types ------------------------------------------------------------*/

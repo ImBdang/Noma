@@ -2,7 +2,8 @@
 #define __LEDSTATE__
 
 #include "stm32f4xx_gpio.h"
-#include "hardware_map.h"
+#include "modem_hw.h"
+#include "systick_api.h"
 
 #define DEFAULT_TIME            500
 #define USER_MODE_TIME          1000

@@ -30,7 +30,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx_it.h"
 extern volatile uint32_t msTicks;
-extern button_t btn1;
+// extern button_t btn1;
 extern lwrb_t usart_rb;
 
 

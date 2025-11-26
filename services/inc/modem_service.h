@@ -1,9 +1,11 @@
 #ifndef __MODEM_S__
 #define __MODEM_S__
 
+
 #include "modem_api.h"
 #include "stdbool.h"
-
+#include "systick_api.h"
+#include "debug.h"
 
 /* ==================================== TYPEDEF STRUCT ========================================= */
 
@@ -13,18 +15,35 @@ typedef enum {
     MODEM_RESET,
 } modem_power_t;
 
-/* ==================================== GLOBAL VARIABLES ======================================== */
-modem_power_t modem_power_state;        
-modem_status_t modem_status_state;
+typedef struct {
+    bool power_on;          /*<! POWER_ON state flag */
+    bool at_ready;          /*<! SYNC_AT state flag */
+    bool config_ready;      /*<! CONFIG state flag */
+    bool sim_ready;         /*<! CHECK_SIM state flag */
+    bool reg_ready;         /*<! CHECK_REG state flag */
+    bool psd_attached;      /*<! ATTACH_PSD state flag */
+    bool pdp_active;        /*<! ACTIVATE_PDP state flag */
+} modem_state_flag_t;
+
+typedef enum {
+    MODEM_STATE_IDLE = 0,       
+
+    MODEM_STATE_POWER_ON,       
+    MODEM_STATE_POWER_OFF,
+    MODEM_STATE_SYNC_AT,        
+    MODEM_STATE_CONFIG,
+    MODEM_STATE_CHECK_SIM,      
+    MODEM_STATE_CHECK_REG,       
+    MODEM_STATE_ATTACH_PSD,      
+    MODEM_STATE_ACTIVATE_PDP,    
+
+    MODEM_STATE_READY,          
+    MODEM_STATE_ERROR           
+} modem_service_state_t;
 
 
 /* ==================================== API DECLARATION ========================================== */
-modem_status_t modem_power(modem_power_t state);
-
-bool modem_power_on(void);
-bool modem_power_off(void);
-bool modem_power_reset(void);
-
-void init_modem(void);
+void modem_service_process(void);
+void modem_init_service(void);
 
 #endif /* __MODEM_S__ */

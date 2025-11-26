@@ -1,14 +1,20 @@
 #include "modem_api.h"
 
+/* ====================================== DECLARATIONS ======================================= */
 lwrb_t usart_rb;
-static uint8_t uart_rx_raw[256];
+static uint8_t usart_rx_raw[256];
 
 char line_buff[256];
 static uint16_t line_len = 0;
 
-static modem_cmd_state_t cmd_state;
 static modem_at_cmd_t executing_cmd;
 static bool is_busy = false;
+
+static bool modem_send_at_cmd(modem_at_cmd_t cmd);
+static void handle_response_line(const char *line);
+static void handle_urc_line(const char *urc);
+static void line_parse(void);
+/* ============================================================================================ */
 
 
 /**
@@ -30,7 +36,10 @@ bool modem_send_at_cmd(modem_at_cmd_t cmd){
     is_busy = true;
 
     usart_sendstring(SIM_USART_PORT, executing_cmd.cmd);
-    uart_send_string(SIM_USART_PORT, "\r\n");
+    usart_sendstring(SIM_USART_PORT, "\r\n");
+    DEBUG_PRINT(">>");
+    DEBUG_PRINT(executing_cmd.cmd);
+    DEBUG_PRINT("\r\n");
     return true;
 }
 
@@ -38,12 +47,17 @@ void line_parse(void){
     uint8_t c;
     while (lwrb_read(&usart_rb, &c, 1)){
         if (line_len < sizeof(line_buff) - 1) {
-            line_buff[line_len++] = c;
+            if (c != 0xFF)
+                line_buff[line_len++] = c;
         }
         if (c == '\n') {
-            line_buff[line_len] = 0;     
-            if (is_busy)
+            line_buff[line_len] = '\0';     
+            if (is_busy){
+                DEBUG_PRINT("<<");
+                DEBUG_PRINT(line_buff);
+                DEBUG_PRINT("\r");
                 handle_response_line(line_buff);
+            }
             else
                 handle_urc_line(line_buff);
             line_len = 0;              
@@ -52,20 +66,23 @@ void line_parse(void){
 }
 
 /**
- * @brief   Handle response line if is_busy is true
+ * @brief   Handle response line
+ * 
+ * @note    Active when is_busy = true
  */
 void handle_response_line(const char *line)
 {
     /*<! If the line is empty */
-    if (line[0] == '\r' || line[0] == '\n')
+    size_t len = strlen(line);
+    if (len == 0 || line[0] == '\r' || line[0] == '\n')
         return;
 
     /*<! Primary response */
-    if (strlen(executing_cmd.expect) > 0 &&
+    if (executing_cmd.expect[0] != '\0' &&
         strstr(line, executing_cmd.expect) != NULL)
     {
         if (executing_cmd.cb)
-            executing_cmd.cb(line, strlen(line));
+            executing_cmd.cb(PRIMARY, line, strlen(line));
         return;
     }
 
@@ -74,7 +91,7 @@ void handle_response_line(const char *line)
     {
         is_busy = false;
         if (executing_cmd.cb)
-            executing_cmd.cb("OK", 2);
+            executing_cmd.cb(OK_RESP ,line, 2);
         return;
     }
 
@@ -83,38 +100,46 @@ void handle_response_line(const char *line)
     {
         is_busy = false;
         if (executing_cmd.cb)
-            executing_cmd.cb("ERROR", 5);
+            executing_cmd.cb(ERROR_RESP, line, 5);
 
         return;
     }
 
     /*<! Intermediate response */
     if (executing_cmd.cb) {
-        executing_cmd.cb(line, strlen(line));
+        executing_cmd.cb(INTERMEDIATE, line, strlen(line));
     }
 }
 
-
+/**
+ * @brief   Handle URC response
+ * 
+ * @note    Active when is_busy = false
+ */
 void handle_urc_line(const char *urc){
 
 }
 
 void modem_process(void){
-    parse_from_ringbuffer();
+    line_parse();
     if (is_busy) {
         uint32_t now = get_systick_ms();
         if (now - executing_cmd.start_tick >= executing_cmd.timeout_ms) {
             is_busy = false;
-            if (executing_cmd.cb)
-                executing_cmd.cb("TIMEOUT", 7);
+            if (executing_cmd.cb){
+                executing_cmd.cb(TIMEOUT_RESP ,"TIMEOUT", 7);
+                is_busy = false;
+            }
         }
     }
 }
 
-void clear_old_data(void){
 
-}
-
+/**
+ * @brief   Init green led on the board
+ * 
+ * @note    Mode out, speed 25MHz, no PuPd, PushPull
+ */
 void led_green_init(void){
     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
     GPIO_InitTypeDef GPIO_InitStruct;
@@ -126,6 +151,15 @@ void led_green_init(void){
     GPIO_Init(LED_4G_PORT, &GPIO_InitStruct);
 }
 
+/**
+ * @brief   Init GPIO control PWKEY, GPIO status SIM
+ * 
+ * @note    GPIO that line to the PWKEY to control on/off
+ *          Mode out, 50MHz, no PuPd
+ * 
+ * @note    GPIO that read the status of the module SIM
+ *          Mode int, Pull down mode
+ */
 void pwkey_gpio_init(void){
     GPIO_InitTypeDef gpio_c = {
         .GPIO_Pin = SIM_PWKEY_Pin,
@@ -143,15 +177,10 @@ void pwkey_gpio_init(void){
 }
 
 
-
-void modem_init_hw(void){
-
-}
-
 /**
  * @brief   Init the modem as like ring buffer hold the data, ...
  */
 void modem_init_md(void){
-    lwrb_init(&usart_rb, uart_rx_raw, sizeof(uart_rx_raw));
-
+    modem_init_hw();            
+    lwrb_init(&usart_rb, usart_rx_raw, sizeof(usart_rx_raw));
 }

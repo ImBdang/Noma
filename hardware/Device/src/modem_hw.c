@@ -1,5 +1,13 @@
 #include "modem_hw.h"
 
+/* ====================================== DECLARATIONS ======================================= */
+static void modem_init_pc_stm_usart_hw(void);
+static void modem_init_sim_usart_hw(void);
+static void modem_init_led_hw(void);
+static void modem_init_button_hw(void);
+static void modem_init_pwkey_gpio_hw(void);
+/* =========================================================================================== */
+
 /**
  * @brief   Init usart that connect pc to mcu 
  * 
@@ -117,6 +125,9 @@ void modem_init_pwkey_gpio_hw(void){
     init_gpio(SIM_STATUS_GPIO, &gpio_c);
 }
 
+/**
+ * @brief   Recall these init func above
+ */
 void modem_init_hw(void){
     modem_init_pc_stm_usart_hw();
     modem_init_sim_usart_hw();

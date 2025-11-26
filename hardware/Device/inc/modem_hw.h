@@ -59,12 +59,6 @@
 
 
 /* =========================================== INIT FUNC ========================================= */
-void modem_init_pc_stm_usart_hw(void);
-void modem_init_sim_usart_hw(void);
-void modem_init_led_hw(void);
-void modem_init_button_hw(void);
-void modem_init_pwkey_gpio_hw(void);
-
 void modem_init_hw(void);
 
 

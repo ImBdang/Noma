@@ -2,6 +2,7 @@
 #define __BUTTON_M__
 
 #include "stm32f4xx_gpio.h"
+#include "gpio_api.h"
 
 /* TYPDEF STRUCT ---------------------------------------------------------------------- */
 typedef struct {

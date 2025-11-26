@@ -167,3 +167,13 @@ clean:
 
 flash: $(BUILD_DIR)/$(PROJECT).bin
 	st-flash write $< 0x8000000
+
+
+# Debug with GDB
+debug: $(BUILD_DIR)/$(PROJECT).elf
+	gdb-multiarch $< \
+	-ex "target extended-remote localhost:3333" \
+	-ex "monitor reset halt" \
+	-ex "load" \
+	-ex "break main" \
+	-ex "continue"
