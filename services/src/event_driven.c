@@ -21,6 +21,14 @@ bool pop_event(modem_event_t* evt){
     return true;
 }
 
+bool event_queue_is_empty(void){
+    return (event_queue.head == event_queue.tail);
+}
+
+bool event_queue_is_full(void){
+    return ((event_queue.tail + 1) % MODEM_EVENT_QUEUE_SIZE) == event_queue.head;
+}
+
 void event_queue_init(modem_event_queue_t* q){
     q->head = 0;
     q->tail = 0;
