@@ -19,10 +19,14 @@ typedef enum {
     EVT_CPIN_PIN,
     EVT_CPIN_PUK,
 
-    EVT_CREG_HOME,
-    EVT_CREG_ROAM,
-    EVT_CREG_SEARCHING,
-    EVT_CREG_DENIED,
+    EVT_CREG_NOT_REGISTERED,        // 0,0
+    EVT_CREG_REGISTERED_HOME,       // 0,1
+    EVT_CREG_SEARCHING,             // 0,2
+    EVT_CREG_REG_DENIED,            // 0,3
+    EVT_CREG_UNKNOWN,               // 0,4
+    EVT_CREG_REGISTERED_ROAMING,    // 0,5
+    EVT_CREG_REGISTERED_SMS,        // 0,6
+    EVT_CREG_REGISTERED_SMS_ROAM,   // 0,7
 
     EVT_CGATT_ATTACHED,
     EVT_CGATT_DETACHED,

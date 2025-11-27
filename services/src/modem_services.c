@@ -1,5 +1,9 @@
 #include "modem_services.h"
 
+void send_sms(const char* str){
+    
+}
+
 /**
  * @brief   Call FSM of the service
  */

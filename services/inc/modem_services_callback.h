@@ -14,6 +14,19 @@ typedef enum {
     SIM_STATE_NOT_RDY
 } sim_state_t;
 
+/*<! Used for the CREG state */
+typedef enum {
+    NET_NOT_REGISTERED = 0,   // stat = 0
+    NET_REGISTERED_HOME,      // stat = 1
+    NET_SEARCHING,            // stat = 2
+    NET_REG_DENIED,           // stat = 3
+    NET_UNKNOWN,              // stat = 4
+    NET_REGISTERED_ROAMING,   // stat = 5
+    NET_REGISTERED_SMS,       // stat = 6
+    NET_REGISTERED_SMS_ROAM   // stat = 7
+} network_state_t;
+
+
 /* ================================ API DECLARATIONS ================================== */
 /*<! CALLBACK FOR AT SYNC */
 void modem_sync_at_callback(respon_status_t reps_status, const char* line, uint32_t len);            

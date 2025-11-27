@@ -468,9 +468,75 @@ static void modem_state_wait_check_sim(void) {
 };
 
 
-/* CHECK REG */
-static bool modem_state_check_reg_entry(void) {};
-static void modem_state_wait_check_reg(void) {};
+/* ====================================== CHECK REG ======================================= */
+static bool modem_state_check_reg_entry(void) {
+    modem_at_cmd_t cmd = {
+        .cmd = "AT+CREG?",
+        .expect = "+CREG:",
+        .timeout_ms = 10000,
+        .start_tick = get_systick_ms(),
+        .cb = modem_check_reg_callback
+    };
+    return modem_send_at_cmd(cmd);
+};
+
+static void modem_state_wait_check_reg(void) {
+    modem_event_t evt;
+    static uint8_t timeout_count = 0;
+    static const uint8_t max_timeout = 3;
+
+    if (!pop_event(&event_queue, &evt))
+        return;
+
+    switch (evt)
+    {
+        case EVT_CREG_REGISTERED_HOME:
+            timeout_count = 0;
+            flag_state.reg_ready = true;
+            modem_state = MODEM_STATE_IDLE;
+            break;
+
+        case EVT_CREG_REGISTERED_ROAMING:
+            timeout_count = 0;
+            flag_state.reg_ready = true;
+            modem_state = MODEM_STATE_IDLE;
+            break;
+
+        case EVT_CREG_NOT_REGISTERED:
+        case EVT_CREG_SEARCHING:
+        case EVT_CREG_REG_DENIED:
+        case EVT_CREG_UNKNOWN:
+        case EVT_CREG_REGISTERED_SMS:
+        case EVT_CREG_REGISTERED_SMS_ROAM:
+            timeout_count = 0;
+            flag_state.reg_ready = false;
+            modem_state = MODEM_STATE_IDLE;
+            break;
+
+        case EVT_TIMEOUT:
+            flag_state.reg_ready = false;
+            timeout_count++;
+
+            if (timeout_count >= max_timeout) {
+                flag_state.error_happen = true;
+                timeout_count = 0;
+            }
+
+            modem_state = MODEM_STATE_IDLE;
+            break;
+
+        case EVT_ERROR:
+            timeout_count = 0;
+            flag_state.error_happen = true;
+            modem_state = MODEM_STATE_IDLE;
+            break;
+
+        default:
+            modem_state = MODEM_STATE_IDLE;
+            break;
+    }
+}
+
 
 /* ATTACH PSD */
 static bool modem_state_attach_psd_entry(void) {};
@@ -566,7 +632,10 @@ void modem_service_fsm_process(void)
      *              CHECK REG
      *===========================================*/
     case MODEM_STATE_CHECK_REG_ENTRY:
-        modem_state_check_reg_entry();
+        tmp = modem_state_check_reg_entry();
+        if (tmp){
+            modem_state = MODEM_STATE_WAIT_CHECK_REG;
+        }
         break;
 
     case MODEM_STATE_WAIT_CHECK_REG:
