@@ -10,7 +10,7 @@ static uint16_t line_len = 0;
 static modem_at_cmd_t executing_cmd;
 static bool is_busy = false;
 
-static bool modem_send_at_cmd(modem_at_cmd_t cmd);
+bool modem_send_at_cmd(modem_at_cmd_t cmd);
 static void handle_response_line(const char *line);
 static void handle_urc_line(const char *urc);
 static void line_parse(void);

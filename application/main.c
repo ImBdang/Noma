@@ -1,5 +1,5 @@
 #include "stdbool.h"
-#include "modem_service.h"
+#include "modem_services.h"
 #include "clock_api.h"
 
 /*============================================== MAIN ================================================= */
@@ -10,7 +10,6 @@ int main(void) {
   modem_init_service();
 
   while(1){
-    bool tmp;
     modem_process();
     modem_service_process();
     delay_ms(500);

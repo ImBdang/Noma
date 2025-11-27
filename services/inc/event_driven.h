@@ -11,12 +11,13 @@
 typedef enum {
     EVT_NONE = 0,
 
-    EVT_AT_OK,
-    EVT_AT_ERROR,
-    EVT_AT_TIMEOUT,
+    EVT_OK,
+    EVT_ERROR,
+    EVT_TIMEOUT,
 
     EVT_CPIN_READY,
-    EVT_CPIN_NOT_READY,
+    EVT_CPIN_PIN,
+    EVT_CPIN_PUK,
 
     EVT_CREG_HOME,
     EVT_CREG_ROAM,
@@ -40,10 +41,12 @@ typedef struct {
 } modem_event_queue_t;
 
 /* ==================================== API DECLARATION ======================================== */
-bool push_event(modem_event_t evt);
-bool pop_event(modem_event_t* evt);
-bool event_queue_is_empty(void);
-bool event_queue_is_full(void);
+bool push_event(modem_event_queue_t* q, modem_event_t evt);
+bool pop_event(modem_event_queue_t* q, modem_event_t* evt);
+bool event_queue_is_empty(modem_event_queue_t* q);
+bool event_queue_is_full(modem_event_queue_t* q);
+void event_queue_clear(modem_event_queue_t* q);
 void event_queue_init(modem_event_queue_t* q);
+
 
 #endif /* __EVENT_S__ */
