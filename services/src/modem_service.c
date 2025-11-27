@@ -1,13 +1,7 @@
 #include "modem_service.h"
 
-/**
- * @brief   Call send sms logic in fsm_state
- * 
- * @param   str: Message that you want to send
- */
-void send_sms(const char* str){
-    
-}
+modem_event_queue_t event_queue; 
+sms_event_queue_t sms_event_queue;
 
 /**
  * @brief   Check if modem state is ready
@@ -32,6 +26,9 @@ void modem_service_process(void){
  * @brief   Call init modem in middleware
  */
 void modem_init_service(void){
+    event_queue_init(&event_queue);
+    sms_event_queue_init(&sms_event_queue);
     modem_init_md();
+
 }
 

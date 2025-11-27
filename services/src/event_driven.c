@@ -38,3 +38,50 @@ void event_queue_init(modem_event_queue_t* q){
     q->head = 0;
     q->tail = 0;
 }
+
+/* ====================================== *** ======================================= */
+
+void sms_event_queue_init(sms_event_queue_t* q)
+{
+    q->head = 0;
+    q->tail = 0;
+}
+
+bool sms_event_queue_is_empty(sms_event_queue_t* q)
+{
+    return (q->head == q->tail);
+}
+
+bool sms_event_queue_is_full(sms_event_queue_t* q)
+{
+    return ((q->tail + 1) % SMS_EVENT_QUEUE_SIZE) == q->head;
+}
+
+void sms_event_queue_clear(sms_event_queue_t* q)
+{
+    q->head = 0;
+    q->tail = 0;
+}
+
+bool sms_push_event(sms_event_queue_t* q, sms_evt_t evt)
+{
+    uint8_t next = (q->tail + 1) % SMS_EVENT_QUEUE_SIZE;
+
+    if (next == q->head)
+        return false;  
+
+    q->buf[q->tail] = evt;
+    q->tail = next;
+    return true;
+}
+
+
+bool sms_pop_event(sms_event_queue_t* q, sms_evt_t* evt)
+{
+    if (q->head == q->tail)
+        return false;  
+
+    *evt = q->buf[q->head];
+    q->head = (q->head + 1) % SMS_EVENT_QUEUE_SIZE;
+    return true;
+}

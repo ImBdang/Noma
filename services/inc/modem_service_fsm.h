@@ -7,7 +7,7 @@
 #include "systick_api.h"
 #include "debug.h"
 #include "event_driven.h"
-#include "modem_service_callback.h"
+#include "modem_service_callback_fsm.h"
 
 /* ==================================== TYPEDEF STRUCT ========================================= */
 

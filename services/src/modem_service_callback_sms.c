@@ -1,0 +1,116 @@
+#include "modem_service_callback_sms.h"
+
+extern sms_event_queue_t sms_event_queue;
+extern sms_state_t sms_state;
+
+void sms_cmgf_callback(respon_status_t resp_status, const char *str,  uint32_t len){
+    switch (resp_status){
+    case OK_RESP:
+        DEBUG_PRINT("CMGS SUCCESS\r\n");
+        DEBUG_PRINT(str);
+        sms_push_event(&sms_event_queue, SMS_EVT_OK);
+        break;
+
+    case ERROR_RESP:
+        DEBUG_PRINT("CMGS FAIL\r\n");
+        DEBUG_PRINT(str);
+                sms_push_event(&sms_event_queue, SMS_EVT_ERROR);
+        break;
+
+    case TIMEOUT_RESP:
+        DEBUG_PRINT("SEND TIMEOUT\r\n");
+        sms_push_event(&sms_event_queue, SMS_EVT_TIMEOUT);
+        break;
+    }
+}
+
+void sms_cscs_callback(respon_status_t resp_status, const char *str, uint32_t len){
+    switch (resp_status){
+    case OK_RESP:
+        DEBUG_PRINT("ENCODING SUCCESS\r\n");
+        DEBUG_PRINT(str);
+        sms_push_event(&sms_event_queue, SMS_EVT_OK);
+        break;
+
+    case ERROR_RESP:
+        DEBUG_PRINT("ENCODING FAIL\r\n");
+        DEBUG_PRINT(str);
+        sms_push_event(&sms_event_queue, SMS_EVT_ERROR);
+        break;
+
+    case TIMEOUT_RESP:
+        DEBUG_PRINT("ENCODING TIMEOUT\r\n");
+        sms_push_event(&sms_event_queue, SMS_EVT_TIMEOUT);
+        break;
+    }
+}
+void sms_cmgs_callback(respon_status_t resp_status, const char *str, uint32_t len)
+{
+    switch (resp_status)
+    {
+        case INTERMEDIATE:
+            // PROMPT '>'
+            if (str[0] == '>' ) {
+                DEBUG_PRINT("CMGS PROMPT >\r\n");
+                sms_push_event(&sms_event_queue, SMS_EVT_PROMPT);
+            } else if (strncmp(str, "+CMGS:", 6) == 0) {
+                DEBUG_PRINT("CMGS REF: ");
+                DEBUG_PRINT(str);
+                DEBUG_PRINT("\r\n");
+            }
+            break;
+
+        case OK_RESP:
+            DEBUG_PRINT("SMS SENT SUCCESS\r\n");
+            DEBUG_PRINT(str);
+            sms_push_event(&sms_event_queue, SMS_EVT_SENT);
+            break;
+
+        case ERROR_RESP:
+            DEBUG_PRINT("SMS SENT FAIL\r\n");
+            DEBUG_PRINT(str);
+            DEBUG_PRINT("\r\n");
+            sms_push_event(&sms_event_queue, SMS_EVT_FAILED);
+            break;
+
+        case TIMEOUT_RESP:
+            DEBUG_PRINT("SMS SENT TIMEOUT\r\n");
+            sms_push_event(&sms_event_queue, SMS_EVT_TIMEOUT);
+            break;
+
+        default:
+            break;
+    }
+}
+
+
+void sms_wait_result_callback(respon_status_t resp_status, const char *str, uint32_t len){
+    switch (resp_status)
+    {
+        case INTERMEDIATE:   // PROMPT '>'
+            DEBUG_PRINT("CMGS PROMPT >\r\n");
+            sms_push_event(&sms_event_queue, SMS_EVT_PROMPT);
+            break;
+
+        case OK_RESP:
+            DEBUG_PRINT("SMS SENT SUCCESS\r\n");
+            DEBUG_PRINT(str);
+            sms_push_event(&sms_event_queue, SMS_EVT_SENT);
+            break;
+
+        case ERROR_RESP:
+            DEBUG_PRINT("SMS SEND FAIL\r\n");
+            DEBUG_PRINT(str);
+            DEBUG_PRINT("\r\n");
+            sms_push_event(&sms_event_queue, SMS_EVT_FAILED);
+            break;
+
+        case TIMEOUT_RESP:
+            DEBUG_PRINT("SMS SEND TIMEOUT\r\n");
+            sms_push_event(&sms_event_queue, SMS_EVT_TIMEOUT);
+            break;
+
+        default:
+            break;
+    }
+}

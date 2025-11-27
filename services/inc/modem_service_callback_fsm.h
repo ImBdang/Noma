@@ -1,5 +1,5 @@
-#ifndef __MODEM_CALLBACK_S__
-#define __MODEM_CALLBACK_S__
+#ifndef __MODEM_CALLBACK_FSM_S__
+#define __MODEM_CALLBACK_FSM_S__
 
 #include "modem_api.h"
 #include "modem_service.h"
@@ -47,4 +47,4 @@ void modem_attach_psd_cgatt_callback(respon_status_t reps_status, const char* li
 /*<! CALLBACK FOR ACTIVATE PDP STATE */
 void modem_activate_pdp_cgact_callback(respon_status_t reps_status, const char* line, uint32_t len);
 
-#endif  /* __MODEM_CALLBACK_S__ */
+#endif  /* __MODEM_CALLBACK_FSM_S__ */

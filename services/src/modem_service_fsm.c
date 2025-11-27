@@ -2,7 +2,7 @@
 
 /* ====================================== DECLARATIONS ======================================= */
 modem_service_state_t modem_state = MODEM_STATE_IDLE;
-modem_event_queue_t event_queue;      
+extern modem_event_queue_t event_queue;      
 
 static modem_config_state_t step_config = CONFIG_ECHO;
 static modem_state_flag_t flag_state;
