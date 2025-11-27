@@ -2,7 +2,7 @@
 #define __MODEM_CALLBACK_S__
 
 #include "modem_api.h"
-#include "modem_services.h"
+#include "modem_service.h"
 #include "string_handle.h"
 #include "event_driven.h"
 

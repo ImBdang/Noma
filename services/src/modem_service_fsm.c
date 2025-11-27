@@ -1,4 +1,4 @@
-#include "modem_services_fsm.h"
+#include "modem_service_fsm.h"
 
 /* ====================================== DECLARATIONS ======================================= */
 modem_service_state_t modem_state = MODEM_STATE_IDLE;
@@ -691,4 +691,9 @@ void modem_service_fsm_process(void)
 static void clear_flag_state(void){
     memset(&flag_state, 0, sizeof(flag_state));
     step_config = CONFIG_ECHO;
+}
+
+
+modem_service_state_t get_current_services_state(void){
+    return modem_state;
 }

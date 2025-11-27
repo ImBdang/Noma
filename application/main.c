@@ -1,5 +1,5 @@
 #include "stdbool.h"
-#include "modem_services.h"
+#include "modem_service.h"
 #include "clock_api.h"
 
 /*============================================== MAIN ================================================= */

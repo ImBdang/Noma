@@ -1,4 +1,4 @@
-#include "modem_services_callback.h"
+#include "modem_service_callback.h"
 
 extern modem_event_queue_t event_queue;
 

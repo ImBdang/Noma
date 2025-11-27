@@ -7,7 +7,7 @@
 #include "systick_api.h"
 #include "debug.h"
 #include "event_driven.h"
-#include "modem_services_callback.h"
+#include "modem_service_callback.h"
 
 /* ==================================== TYPEDEF STRUCT ========================================= */
 
@@ -65,6 +65,7 @@ typedef enum {
 
 
 /* ==================================== API DECLARATION ========================================== */
+modem_service_state_t get_current_services_state(void);
 void modem_service_fsm_process(void);
 
 #endif /* __MODEM_FSM_S__ */
