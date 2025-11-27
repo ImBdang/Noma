@@ -21,7 +21,7 @@ void modem_sync_at_callback(respon_status_t resp_status, const char* line, uint3
     }
 }            
 
-void modem_config_ate0_callback(respon_status_t resp_status ,const char* line, uint32_t len) {
+void modem_config_ate0_callback(respon_status_t resp_status ,const char* str, uint32_t len) {
     switch (resp_status){
     case OK_RESP:
         DEBUG_PRINT("ATE0 DONE\r\n");
@@ -40,10 +40,27 @@ void modem_config_ate0_callback(respon_status_t resp_status ,const char* line, u
     }
 };
 
+void modem_config_cfun1_callback(respon_status_t resp_status, const char* line, uint32_t len) {
+    switch (resp_status){
+    case OK_RESP:
+        DEBUG_PRINT("CFUN=1 DONE\r\n");
+        push_event(&event_queue, EVT_OK);
+        break;
 
+    case ERROR_RESP:
+        DEBUG_PRINT("CFUN=1 FAILED\r\n");
+        push_event(&event_queue, EVT_ERROR);
+        break;
+
+    case TIMEOUT_RESP:
+        DEBUG_PRINT("CFUN=1 TIMEOUT\r\n");
+        push_event(&event_queue, EVT_TIMEOUT);
+        break;
+    }
+}
 
 void modem_check_sim_cpin_callback(respon_status_t status, const char* line, uint32_t len){
-    
+
     static sim_state_t sim_state = SIM_STATE_NOT_RDY;
     char value[16];
 
@@ -100,11 +117,6 @@ void modem_check_sim_cpin_callback(respon_status_t status, const char* line, uin
         break;
     }
 }
-
-
-void modem_check_sim_cpin_callback(respon_status_t s, const char* line, uint32_t len) {
-
-};
 
 void modem_check_reg_callback(respon_status_t s, const char* line, uint32_t len) {};
 

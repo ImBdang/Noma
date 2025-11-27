@@ -13,12 +13,6 @@ static void clear_flag_state(void);
 /* IDLE */
 static void modem_state_idle_process(void);
 
-/* POWER ON */
-static bool modem_state_power_on(void);
-
-/* POWER OF */
-static bool modem_state_power_off(void);
-
 /* SYNC AT */
 static bool modem_state_sync_at_entry(void);
 static void modem_state_wait_sync_at(void);
@@ -334,9 +328,11 @@ static void modem_state_wait_sync_at(void){
 
 /* ====================================== CONFIG ======================================= */
 static bool modem_state_config_entry(void) {
+    modem_at_cmd_t cmd ;
     switch (step_config)
     {
         case CONFIG_ECHO:
+        {
             modem_at_cmd_t cmd = {
                 .cmd = "ATE0",
                 .expect = "",
@@ -344,9 +340,11 @@ static bool modem_state_config_entry(void) {
                 .start_tick = get_systick_ms(),
                 .cb = modem_config_ate0_callback
             };
-            return modem_send_at_cmd(cmd);                                
+            return modem_send_at_cmd(cmd);
+        }
 
         case CONFIG_CFUN1_CODE:
+        {
             modem_at_cmd_t cmd = {
                 .cmd = "AT+CFUN=1",
                 .expect = "",
@@ -354,10 +352,11 @@ static bool modem_state_config_entry(void) {
                 .start_tick = get_systick_ms(),
                 .cb = modem_config_cfun1_callback
             };
-            return modem_send_at_cmd(cmd);              
-        
+            return modem_send_at_cmd(cmd);
+        }
+
         default:
-            break;
+            return false;
     }
 };
 
@@ -552,7 +551,10 @@ void modem_service_fsm_process(void)
      *              CHECK SIM
      *===========================================*/
     case MODEM_STATE_CHECK_SIM_ENTRY:
-        modem_state_check_sim_entry();
+        tmp = modem_state_check_sim_entry();
+        if (tmp){
+            modem_state = MODEM_STATE_WAIT_CHECK_SIM;
+        }
         break;
 
     case MODEM_STATE_WAIT_CHECK_SIM:
@@ -605,8 +607,8 @@ void modem_service_fsm_process(void)
 
     case MODEM_STATE_ERROR:
         // modem_state_error();
-        modem_power_reset();
         clear_flag_state();
+        modem_power_reset();
         break;
 
 
