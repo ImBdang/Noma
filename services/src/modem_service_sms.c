@@ -196,8 +196,7 @@ static bool sms_state_entry_send_text(void)
     return true;
 }
 
-static void sms_state_wait_result(void)
-{
+static void sms_state_wait_result(void){
     sms_evt_t evt;
 
     if (!sms_pop_event(&sms_event_queue, &evt))
@@ -210,7 +209,8 @@ static void sms_state_wait_result(void)
             sms_state = SMS_STATE_DONE;
             break;
 
-        case SMS_EVT_FAILED:
+        case SMS_EVT_FAILED:   
+            break;
         case SMS_EVT_TIMEOUT:
             if (sms_retry_count < sms_max_retry) {
                 sms_retry_count++;
@@ -279,7 +279,6 @@ bool send_sms(const char* message, const char* phone)
             return false;
 
         case SMS_STATE_DONE:
-            
             return true;
 
         case SMS_STATE_ERROR:

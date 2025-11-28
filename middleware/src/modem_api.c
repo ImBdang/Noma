@@ -1,6 +1,8 @@
 #include "modem_api.h"
 
 /* ====================================== DECLARATIONS ======================================= */
+
+
 lwrb_t usart_rb;
 static uint8_t usart_rx_raw[256];
 
@@ -117,7 +119,7 @@ void handle_response_line(const char *line)
  * @note    Active when is_busy = false
  */
 void handle_urc_line(const char *urc){
-
+    
 }
 
 void modem_process(void){

@@ -75,7 +75,6 @@ bool sms_push_event(sms_event_queue_t* q, sms_evt_t evt)
     return true;
 }
 
-
 bool sms_pop_event(sms_event_queue_t* q, sms_evt_t* evt)
 {
     if (q->head == q->tail)
@@ -83,5 +82,52 @@ bool sms_pop_event(sms_event_queue_t* q, sms_evt_t* evt)
 
     *evt = q->buf[q->head];
     q->head = (q->head + 1) % SMS_EVENT_QUEUE_SIZE;
+    return true;
+}
+
+/* ====================================== *** ======================================= */
+
+
+void urc_event_queue_init(urc_event_queue_t* q)
+{
+    q->head = 0;
+    q->tail = 0;
+}
+
+bool urc_event_queue_is_empty(urc_event_queue_t* q)
+{
+    return (q->head == q->tail);
+}
+
+bool urc_event_queue_is_full(urc_event_queue_t* q)
+{
+    return ((q->tail + 1) % URC_EVENT_QUEUE_SIZE) == q->head;
+}
+
+void urc_event_queue_clear(urc_event_queue_t* q)
+{
+    q->head = 0;
+    q->tail = 0;
+}
+
+bool urc_push_event(urc_event_queue_t* q, urc_event_t evt)
+{
+    uint8_t next = (q->tail + 1) % URC_EVENT_QUEUE_SIZE;
+
+    if (next == q->head)
+        return false;  // queue full
+
+    q->buf[q->tail] = evt;
+    q->tail = next;
+    return true;
+}
+
+bool urc_pop_event(urc_event_queue_t* q, urc_event_t* evt)
+{
+    if (q->head == q->tail)
+        return false;  // queue empty
+
+    *evt = q->buf[q->head];
+    q->head = (q->head + 1) % URC_EVENT_QUEUE_SIZE;
     return true;
 }
