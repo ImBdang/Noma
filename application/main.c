@@ -10,11 +10,10 @@ int main(void) {
   modem_init_service();
   bool tmp = true;
   while(1){
-    modem_process();
     modem_service_process();
     delay_ms(500);
     if (tmp && service_is_ready()){
-      tmp = !send_sms("Dung giam len co va Usagi nhe ;3", "+84869668837");
+      tmp = !send_sms("Bdang", "+84869668837");
     }
   }
 }

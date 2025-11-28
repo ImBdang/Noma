@@ -8,6 +8,7 @@
 #include "debug.h"
 #include "modem_service_fsm.h"
 #include "modem_service_sms.h"
+#include "modem_service_urc.h"
 
 
 /* ==================================== API DECLARATION ========================================== */

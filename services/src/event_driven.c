@@ -87,7 +87,6 @@ bool sms_pop_event(sms_event_queue_t* q, sms_evt_t* evt)
 
 /* ====================================== *** ======================================= */
 
-
 void urc_event_queue_init(urc_event_queue_t* q)
 {
     q->head = 0;
@@ -110,24 +109,24 @@ void urc_event_queue_clear(urc_event_queue_t* q)
     q->tail = 0;
 }
 
-bool urc_push_event(urc_event_queue_t* q, urc_event_t evt)
+bool urc_push_event(urc_event_queue_t* q, const urc_t* evt)
 {
     uint8_t next = (q->tail + 1) % URC_EVENT_QUEUE_SIZE;
 
     if (next == q->head)
-        return false;  // queue full
+        return false;  // Queue is full
 
-    q->buf[q->tail] = evt;
+    q->buf[q->tail] = *evt;   // copy full struct
     q->tail = next;
     return true;
 }
 
-bool urc_pop_event(urc_event_queue_t* q, urc_event_t* evt)
+bool urc_pop_event(urc_event_queue_t* q, urc_t* evt)
 {
     if (q->head == q->tail)
-        return false;  // queue empty
+        return false;  // Queue empty
 
-    *evt = q->buf[q->head];
+    *evt = q->buf[q->head];   // return full struct
     q->head = (q->head + 1) % URC_EVENT_QUEUE_SIZE;
     return true;
 }

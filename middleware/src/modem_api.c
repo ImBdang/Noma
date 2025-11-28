@@ -119,7 +119,7 @@ void handle_response_line(const char *line)
  * @note    Active when is_busy = false
  */
 void handle_urc_line(const char *urc){
-    
+    modem_urc_make_event(urc);
 }
 
 void modem_process(void){

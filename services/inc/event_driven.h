@@ -96,42 +96,50 @@ typedef struct {
     urc_event_t type;
 
     union {
-        struct {
-            int index;            // SMS index (CMTI)
-            char sender[32];      // optional for +CMT
-            char content[256];    // optional
-        } sms;
 
+        /* +CMTI (SMS new index) */
         struct {
-            char number[32];      // số gọi đến (CLIP)
+            uint8_t index;
+        } sms_new;
+
+        /* +CMT (SMS received with content) */
+        struct {
+            char sender[32];     
+            char content[256];   
+        } sms_recv;
+
+        /* +CLIP / RING */
+        struct {
+            char number[32];
         } call;
 
+        /* +CREG / +CEREG / +CGREG */
         struct {
-            int reg_stat;         // 0,1,2,5 (CREG/CEREG)
-            int cell_id;
-            int tac;
+            int stat;     
+            int lac;      
+            int cell_id;  
         } net;
 
+        /* +CSQ */
         struct {
-            int rssi;             // 0-31
-            int ber;              // 0-7
+            int rssi;
+            int ber;
         } signal;
 
+        /* QIURC: "recv",... */
         struct {
             int pdp_id;
             int data_len;
         } data;
 
+        /* +CPIN: READY / NOT INSERTED / SIM PIN */
         struct {
-            int sim_status;       // READY / PIN / ABSENT
+            int sim_status;
         } sim;
 
     } info;
 
 } urc_t;
-
-
-
 
 
 /* ==================================== RING QUEUE EVENT ======================================= */
@@ -148,7 +156,7 @@ typedef struct {
 } sms_event_queue_t;
 
 typedef struct {
-    modem_event_t buf[URC_EVENT_QUEUE_SIZE];
+    urc_t buf[URC_EVENT_QUEUE_SIZE];
     uint8_t head;
     uint8_t tail;
 } urc_event_queue_t;
@@ -173,7 +181,7 @@ void urc_event_queue_init(urc_event_queue_t* q);
 bool urc_event_queue_is_empty(urc_event_queue_t* q);
 bool urc_event_queue_is_full(urc_event_queue_t* q);
 void urc_event_queue_clear(urc_event_queue_t* q);
-bool urc_push_event(urc_event_queue_t* q, urc_event_t evt);
-bool urc_pop_event(urc_event_queue_t* q, urc_event_t* evt);
+bool urc_push_event(urc_event_queue_t* q, const urc_t* evt);
+bool urc_pop_event(urc_event_queue_t* q, urc_t* evt);
 
 #endif /* __EVENT_S__ */

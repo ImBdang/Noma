@@ -6,11 +6,12 @@
 
 #include "event_driven.h"
 #include "systick_api.h"
+#include "string_handle.h"
 #include "debug.h"
 
  
 
 /* ============================== API DECLARATIONS ============================== */
-void modem_urc_process(const char *urc);
+void modem_urc_make_event(const char *urc);
 
 #endif /* __MODEM_URC_M__ */

@@ -2,7 +2,7 @@
 
 modem_event_queue_t event_queue; 
 sms_event_queue_t sms_event_queue;
-urc_event_t urc_event_queue;
+urc_event_queue_t urc_event_queue;
 
 /**
  * @brief   Check if modem state is ready
@@ -20,7 +20,9 @@ bool service_is_ready(void){
  * @brief   Call FSM of the service
  */
 void modem_service_process(void){
+    modem_process();
     modem_service_fsm_process();
+    modem_service_urc_process();
 }
 
 /**
@@ -31,6 +33,5 @@ void modem_init_service(void){
     sms_event_queue_init(&sms_event_queue);
     urc_event_queue_init(&urc_event_queue);
     modem_init_md();
-
 }
 
