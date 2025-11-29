@@ -2,6 +2,7 @@
 #define __MODEM_URC_S__
 
 #include "modem_service_fsm.h"
+#include "modem_service_sms.h"
 #include "modem_api.h"
 #include "usart_api.h"
 #include "event_driven.h"

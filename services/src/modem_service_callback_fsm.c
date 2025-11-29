@@ -206,6 +206,23 @@ void modem_check_reg_callback(respon_status_t resp_status, const char* line, uin
     }
 };
 
-void modem_attach_psd_cgatt_callback(respon_status_t resp_status, const char* line, uint32_t len) {};
+void modem_attach_psd_cgatt_callback(respon_status_t resp_status, const char* line, uint32_t len) {
+    switch (resp_status){
+    case OK_RESP:
+        DEBUG_PRINT("GPRS attached\r\n");
+        push_event(&event_queue, EVT_OK);
+        break;
+
+    case ERROR_RESP:
+        DEBUG_PRINT("GPRS attach FAILED\r\n");
+        push_event(&event_queue, EVT_ERROR);
+        break;
+
+    case TIMEOUT_RESP:
+        DEBUG_PRINT("GPRS attach TIMEOUT\r\n");
+        push_event(&event_queue, EVT_TIMEOUT);
+        break;
+    }
+};
 
 void modem_activate_pdp_cgact_callback(respon_status_t resp_status, const char* line, uint32_t len) {};

@@ -2,6 +2,7 @@
 #define __MODEM_SMS_S__
 
 #include "modem_service_fsm.h"
+#include "modem_service_callback_sms.h"
 #include "modem_api.h"
 #include "usart_api.h"
 #include "event_driven.h"
@@ -40,7 +41,13 @@ typedef enum {
 
 } sms_state_t;
 
+typedef enum {
+    SMS_READ_ENTRY = 0,
+    SMS_READ_WAIT
+} sms_read_state_t;
+
 /* =============================== API DECLARATIONS =============================== */
 bool send_sms(const char* str, const char* phone);
+void read_sms(char sms_idx[4]);
 
 #endif /* __MODEM_SMS_S__ */

@@ -6,6 +6,6 @@
 
 /* ====================================== API DECLARATION ===================================== */
 void primary_dispatch(const char* str, char* result);
-uint8_t new_sms_dispatch(const char* str);
+void new_sms_dispatch(const char* str, char* id_out);
 
 #endif /* __STRING_HANDLE_S__ */

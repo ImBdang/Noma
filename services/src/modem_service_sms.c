@@ -4,6 +4,7 @@
 extern sms_event_queue_t sms_event_queue;
 
 static sms_message_t sms_cur;
+static sms_read_state_t sms_read_state = SMS_READ_ENTRY;
 static sms_state_t sms_state = SMS_STATE_INIT;
 static uint8_t sms_retry_count = 0;
 static uint8_t sms_max_retry = 3;
@@ -24,10 +25,6 @@ static void sms_state_wait_result(void);
 
 static void sms_state_entry_done(void);
 static void sms_state_entry_error(void);
-
-static void sms_cmgf_callback(respon_status_t status, const char *str,  uint32_t len);
-static void sms_cscs_callback(respon_status_t status, const char *str, uint32_t len);
-static void sms_cmgs_callback(respon_status_t status, const char *str, uint32_t len);
 /* =========================================================================================== */
 
 static void sms_state_entry_init(const char* message, const char* phone){
@@ -42,13 +39,29 @@ static void sms_state_entry_init(const char* message, const char* phone){
 static bool sms_state_entry_set_format(void){
     modem_at_cmd_t cmd = {
         .cmd = "AT+CMGF=1",             /*<! Modify this later <===================== */
-        .expect = "",
+        .expect = "+CMGR",
         .timeout_ms = 10000,
         .start_tick = get_systick_ms(),
         .cb = sms_cmgf_callback
     };
     return modem_send_at_cmd(cmd);  
 }
+
+void read_sms(char sms_idx[4]){
+    static char at_cmd_buf[16];
+    strcpy(at_cmd_buf, "AT+CMGR=");
+    strcat(at_cmd_buf, sms_idx);
+
+    modem_at_cmd_t cmd = {
+        .expect = "+CMGR:",
+        .timeout_ms = 10000,
+        .start_tick = get_systick_ms(),
+        .cb = sms_read_sms_callback
+    };
+    strcpy(cmd.cmd, at_cmd_buf);
+    modem_send_at_cmd(cmd);
+}
+
 static void sms_state_entry_wait_set_format(void){
     sms_evt_t evt;
     static uint8_t timeout_count = 0;

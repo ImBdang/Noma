@@ -11,6 +11,7 @@ void modem_service_urc_process(void){
     switch (evt.type)
     {
     case URC_EVT_SMS_NEW:
+        
         DEBUG_PRINT("Have new MESSAGE\r\n");
         break;
 

@@ -6,9 +6,11 @@ extern urc_event_queue_t urc_event_queue;
 void modem_urc_make_event(const char *urc){
     if (strncmp(urc, "+CMTI:", 6) == 0) {
         urc_t evt = {0};
+        char idx_msg[4];
         evt.type = URC_EVT_SMS_NEW;
-        uint8_t idx = new_sms_dispatch(urc);
-        evt.info.sms_new.index = idx;
+        new_sms_dispatch(urc, idx_msg);
+        strcpy(evt.info.sms_new.index, idx_msg);
+        DEBUG_PRINT(urc);
         urc_push_event(&urc_event_queue, &evt);
         return;
     }

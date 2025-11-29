@@ -49,6 +49,10 @@ typedef enum {
     SMS_EVT_CMGS_ACCEPT,   
     SMS_EVT_CMGS_FAIL,     
 
+    SMS_EVT_READ,
+    SMS_EVT_READ_DONE,
+    SMS_EVT_READ_ERR,
+
     SMS_EVT_SENT,
     SMS_EVT_FAILED
 } sms_evt_t;
@@ -99,7 +103,7 @@ typedef struct {
 
         /* +CMTI (SMS new index) */
         struct {
-            uint8_t index;
+            char index[4];
         } sms_new;
 
         /* +CMT (SMS received with content) */

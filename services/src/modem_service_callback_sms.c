@@ -114,3 +114,42 @@ void sms_wait_result_callback(respon_status_t resp_status, const char *str, uint
     }
 }
 
+void sms_read_sms_callback(respon_status_t resp_status, const char *str, uint32_t len){
+    static char sms_body[255];
+    switch (resp_status)
+    {
+        case PRIMARY:
+            DEBUG_PRINT(str);
+            sms_push_event(&sms_event_queue, SMS_EVT_READ);
+            break;
+
+        case INTERMEDIATE:  
+            strncpy(sms_body, str, sizeof(sms_body)-1);
+            sms_body[sizeof(sms_body)-1] = '\0';
+
+            DEBUG_PRINT("SMS BODY: ");
+            DEBUG_PRINT(sms_body);
+            DEBUG_PRINT("\r\n");
+            break;
+
+        case OK_RESP:
+            DEBUG_PRINT("READ SUCCESS\r\n");
+            DEBUG_PRINT(str);
+            sms_push_event(&sms_event_queue, SMS_EVT_READ_DONE);
+            break;
+
+        case ERROR_RESP:
+            DEBUG_PRINT("READ FAIL\r\n");
+            DEBUG_PRINT(str);
+            DEBUG_PRINT("\r\n");
+            sms_push_event(&sms_event_queue, SMS_EVT_READ_ERR);
+            break;
+
+        case TIMEOUT_RESP:
+            DEBUG_PRINT("TIMEOUT\r\n");
+            sms_push_event(&sms_event_queue, SMS_EVT_TIMEOUT);
+            break;
+        default:
+            break;
+    }
+}

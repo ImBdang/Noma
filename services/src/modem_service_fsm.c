@@ -227,10 +227,10 @@ static void modem_state_idle_process(void)
     }
 
     /*<! STATE: ATTACH_PSD */
-    // if (!flag_state.psd_attached) {
-    //     modem_state = MODEM_STATE_ATTACH_PSD_ENTRY;
-    //     return;
-    // }
+    if (!flag_state.psd_attached) {
+        modem_state = MODEM_STATE_ATTACH_PSD_ENTRY;
+        return;
+    }
 
     /*<! STATE: ACTIVATE_PDP */
     // if (!flag_state.pdp_active) {
@@ -539,17 +539,61 @@ static void modem_state_wait_check_reg(void) {
 
 
 /* ATTACH PSD */
-static bool modem_state_attach_psd_entry(void) {};
-static void modem_state_wait_attach_psd(void) {};
+static bool modem_state_attach_psd_entry(void) {
+    modem_at_cmd_t cmd = {
+        .cmd = "AT+CGATT=1",
+        .expect = "",
+        .timeout_ms = 10000,
+        .start_tick = get_systick_ms(),
+        .cb = modem_attach_psd_cgatt_callback
+    };
+    return modem_send_at_cmd(cmd);  
+};
+static void modem_state_wait_attach_psd(void) {
+    modem_event_t evt;
+    static uint8_t timeout_count = 0;
+    static uint8_t max_timeout = 3;
+    if (!pop_event(&event_queue, &evt))
+        return;
+
+    switch (evt)
+    {
+        case EVT_OK:
+            timeout_count = 0; 
+            flag_state.psd_attached = true;
+            modem_state = MODEM_STATE_IDLE;
+            break;
+
+        case EVT_TIMEOUT:
+            flag_state.psd_attached = false;
+            timeout_count++;
+            if (timeout_count >= max_timeout){
+                flag_state.error_happen = true;
+                timeout_count = 0;
+            }
+            modem_state = MODEM_STATE_IDLE;
+            break;
+        
+        case EVT_ERROR:
+            timeout_count = 0;
+            flag_state.error_happen = true;
+            modem_state = MODEM_STATE_IDLE;
+            break;
+
+        default:
+            modem_state = MODEM_STATE_IDLE;
+            break;
+    }
+};
 
 /* ACTIVATE PDP */
 static bool modem_state_activate_pdp_entry(void) {};
 static void modem_state_wait_activate_pdp(void) {};
 
-/* READY / ERROR */
-static void modem_state_ready(void) {};
-static void modem_state_error(void) {};
+ void modem_state_ready(void){
 
+ }
+ 
 
 /**
  * @brief   STATE switch case 
@@ -646,13 +690,16 @@ void modem_service_fsm_process(void)
     /*===========================================
      *              ATTACH PSD
      *===========================================*/
-    // case MODEM_STATE_ATTACH_PSD_ENTRY:
-    //     modem_state_attach_psd_entry();
-    //     break;
+    case MODEM_STATE_ATTACH_PSD_ENTRY:
+        tmp = modem_state_attach_psd_entry();
+        if (tmp){
+            modem_state = MODEM_STATE_WAIT_ATTACH_PSD;
+        }
+        break;
 
-    // case MODEM_STATE_WAIT_ATTACH_PSD:
-    //     modem_state_wait_attach_psd();
-    //     break;
+    case MODEM_STATE_WAIT_ATTACH_PSD:
+        modem_state_wait_attach_psd();
+        break;
 
 
     /*===========================================
@@ -675,8 +722,8 @@ void modem_service_fsm_process(void)
         break;
 
     case MODEM_STATE_ERROR:
-        // modem_state_error();
         clear_flag_state();
+        modem_state = MODEM_STATE_IDLE;
         modem_power_reset();
         break;
 
