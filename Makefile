@@ -94,10 +94,10 @@ CFLAGS := -mcpu=$(MCU) -mthumb $(FPU) $(FLOAT_ABI) -Wall -O0 -g \
 
 LDFLAGS := -T$(LINKER_DIR)/$(LD_SCRIPT) \
            --specs=nano.specs \
-           -Wl,--gc-sections \
            -Wl,-Map=$(BUILD_DIR)/$(PROJECT).map \
            -Wl,--no-warn-rwx-segments \
-           --specs=nosys.specs
+           --specs=nosys.specs \
+		   -Wl,--gc-sections
 
 ###################################
 #           MAKE RULES            

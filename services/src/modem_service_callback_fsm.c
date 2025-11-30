@@ -225,4 +225,65 @@ void modem_attach_psd_cgatt_callback(respon_status_t resp_status, const char* li
     }
 };
 
-void modem_activate_pdp_cgact_callback(respon_status_t resp_status, const char* line, uint32_t len) {};
+void modem_pdp_cgdcont_callback(respon_status_t resp_status, const char* line, uint32_t len) {
+    switch (resp_status){
+    case OK_RESP:
+        DEBUG_PRINT("CGDCONT SUCCESS\r\n");
+        push_event(&event_queue, EVT_OK);
+        break;
+
+    case ERROR_RESP:
+        DEBUG_PRINT("CGDCONT FAILED\r\n");
+        push_event(&event_queue, EVT_ERROR);
+        break;
+
+    case TIMEOUT_RESP:
+        DEBUG_PRINT("CGDCONT TIMEOUT\r\n");
+        push_event(&event_queue, EVT_TIMEOUT);
+        break;
+    }
+};
+
+void modem_pdp_cgact_callback(respon_status_t resp_status, const char* line, uint32_t len) {
+        switch (resp_status){
+    case OK_RESP:
+        DEBUG_PRINT("CGACT SUCCESS\r\n");
+        push_event(&event_queue, EVT_OK);
+        break;
+
+    case ERROR_RESP:
+        DEBUG_PRINT("CGACT FAILED\r\n");
+        push_event(&event_queue, EVT_ERROR);
+        break;
+
+    case TIMEOUT_RESP:
+        DEBUG_PRINT("CGACT TIMEOUT\r\n");
+        push_event(&event_queue, EVT_TIMEOUT);
+        break;
+    };
+}
+
+
+void dummy_callback(respon_status_t resp_status, const char* line, uint32_t len){
+    switch (resp_status){
+    case OK_RESP:
+        DEBUG_PRINT("OK EVENT\r\n");
+        push_event(&event_queue, EVT_OK);
+        break;
+        
+    case PRIMARY:
+        DEBUG_PRINT("PRIMARY\r\n");
+        push_event(&event_queue, EVT_OK);
+        break;
+
+    case ERROR_RESP:
+        DEBUG_PRINT("ERROR EVENT\r\n");
+        push_event(&event_queue, EVT_ERROR);
+        break;
+
+    case TIMEOUT_RESP:
+        DEBUG_PRINT("TIMEOUT EVENT\r\n");
+        push_event(&event_queue, EVT_TIMEOUT);
+        break;
+    }
+}            

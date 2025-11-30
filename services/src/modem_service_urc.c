@@ -2,7 +2,27 @@
 
 /* ====================================== DECLARATIONS ======================================= */
 extern urc_event_queue_t urc_event_queue;
+static uint32_t remaining_bit = 0;
 /* =========================================================================================== */
+
+static void breakp(void){
+    DEBUG_PRINT("HEHE\r\n");
+}
+
+static void read_data(urc_t evt){
+    uint32_t size = evt.info.http_read.data_len;
+
+    static uint8_t temp_buf[2048];   
+    uint32_t read_cnt = 0;
+    while (read_cnt < size) {
+        uint8_t c;
+        if (lwrb_read(&usart_rb, &c, 1) == 1) {
+            temp_buf[read_cnt++] = c;
+        }
+    }
+    breakp();
+}
+
 void modem_service_urc_process(void){
     urc_t evt;
     if (!urc_pop_event(&urc_event_queue, &evt))
@@ -11,8 +31,25 @@ void modem_service_urc_process(void){
     switch (evt.type)
     {
     case URC_EVT_SMS_NEW:
-        
         DEBUG_PRINT("Have new MESSAGE\r\n");
+        break;
+
+    case URC_EVT_HTTP_GET:
+        if (strncmp(evt.info.http_get.status_code, "200", 3) == 0){
+            DEBUG_PRINT("HTTP STATUS CODE 200\r\n");
+            http_read(evt.info.http_get.data_len);
+        }
+        else{
+            DEBUG_PRINT("HTTP ERROR, STATUS CODE: ");
+            DEBUG_PRINT(evt.info.http_get.status_code);
+            DEBUG_PRINT("\r\n");
+        }
+
+        break;
+    
+    case URC_EVT_HTTP_READ:
+        DEBUG_PRINT("READ NAY\r\n");
+        read_data(evt);
         break;
 
     case URC_EVT_NET_REG_STATUS:

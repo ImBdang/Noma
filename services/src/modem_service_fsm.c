@@ -4,8 +4,11 @@
 modem_service_state_t modem_state = MODEM_STATE_IDLE;
 extern modem_event_queue_t event_queue;      
 
+static uint8_t temp_step = 0;
 static modem_config_state_t step_config = CONFIG_ECHO;
 static modem_state_flag_t flag_state;
+
+static modem_service_state_t get_current_services_state(void);
 
 static void clear_flag_state(void);
 
@@ -196,6 +199,12 @@ static void modem_state_idle_process(void)
         return;
     }
 
+    /*<! STATE: POWER_OFF */
+    if (!flag_state.power_off) {
+        modem_state = MODEM_STATE_POWER_OFF;
+        return;
+    }
+
     /*<! STATE: POWER_ON */
     if (!flag_state.power_on) {
         modem_state = MODEM_STATE_POWER_ON;
@@ -233,10 +242,16 @@ static void modem_state_idle_process(void)
     }
 
     /*<! STATE: ACTIVATE_PDP */
-    // if (!flag_state.pdp_active) {
-    //     modem_state = MODEM_STATE_ACTIVATE_PDP_ENTRY;
-    //     return;
-    // }
+    if (!flag_state.pdp_active) {
+        modem_state = MODEM_STATE_ACTIVATE_PDP_ENTRY;
+        return;
+    }
+
+
+    if (!flag_state.http_active) {
+        modem_state = MODEM_STATE_HTTP_INIT;
+        return;
+    }
 
     /*<! STATE: READY */
     modem_state = MODEM_STATE_READY;
@@ -263,6 +278,7 @@ static void modem_state_power_off_process(void){
     tmp = modem_power(MODEM_PWR_OFF);
     if (tmp){
         modem_state = MODEM_STATE_IDLE;
+        flag_state.power_off = true;
     }
 }
 
@@ -334,11 +350,11 @@ static bool modem_state_config_entry(void) {
         case CONFIG_ECHO:
         {
             modem_at_cmd_t cmd = {
-                .cmd = "ATE0",
+                .cmd = "AT+CFUN=1",
                 .expect = "",
                 .timeout_ms = 5000,
                 .start_tick = get_systick_ms(),
-                .cb = modem_config_ate0_callback
+                .cb = modem_config_cfun1_callback
             };
             return modem_send_at_cmd(cmd);
         }
@@ -346,11 +362,11 @@ static bool modem_state_config_entry(void) {
         case CONFIG_CFUN1_CODE:
         {
             modem_at_cmd_t cmd = {
-                .cmd = "AT+CFUN=1",
+                .cmd = "ATE0",
                 .expect = "",
                 .timeout_ms = 5000,
                 .start_tick = get_systick_ms(),
-                .cb = modem_config_cfun1_callback
+                .cb = modem_config_ate0_callback
             };
             return modem_send_at_cmd(cmd);
         }
@@ -587,8 +603,89 @@ static void modem_state_wait_attach_psd(void) {
 };
 
 /* ACTIVATE PDP */
-static bool modem_state_activate_pdp_entry(void) {};
-static void modem_state_wait_activate_pdp(void) {};
+static bool modem_state_activate_pdp_entry(void) 
+{
+    switch (temp_step)
+    {
+        case 0:  // Set APN
+        {
+            modem_at_cmd_t cmd = {
+                .cmd = "AT+CGDCONT=1,\"IP\",\"v-internet\"",
+                .expect = "",
+                .timeout_ms = 10000,
+                .start_tick = get_systick_ms(),
+                .cb = modem_pdp_cgdcont_callback
+            };
+            return modem_send_at_cmd(cmd);
+        }
+
+        case 1:  // Activate PDP
+        {
+            modem_at_cmd_t cmd = {
+                .cmd = "AT+CGACT=1,1",
+                .expect = "",
+                .timeout_ms = 10000,
+                .start_tick = get_systick_ms(),
+                .cb = modem_pdp_cgact_callback
+            };
+            return modem_send_at_cmd(cmd);
+        }
+
+        default:
+            temp_step = 0;
+            return false;
+    }
+}
+
+static void modem_state_wait_activate_pdp(void) {
+    modem_event_t evt;
+    static uint8_t timeout_count = 0;
+    static const uint8_t max_timeout = 3;
+
+    if (!pop_event(&event_queue, &evt))
+        return;
+
+    switch (evt)
+    {
+        case EVT_OK:
+
+            if (temp_step == 0) {
+                temp_step = 1;
+                modem_state = MODEM_STATE_IDLE;
+            }
+            else if (temp_step == 1) {
+                temp_step = 0;
+                timeout_count = 0;
+                flag_state.pdp_active = true;
+                modem_state = MODEM_STATE_IDLE;
+            }
+            break;
+
+
+        case EVT_TIMEOUT:
+            flag_state.pdp_active = false;
+            timeout_count++;
+            if (timeout_count >= max_timeout){
+                flag_state.error_happen = true;
+                timeout_count = 0;
+            }
+            modem_state = MODEM_STATE_IDLE;
+            break;
+        case EVT_ERROR:
+            timeout_count++;
+            if (timeout_count >= max_timeout){
+                flag_state.error_happen = true;
+                timeout_count = 0;
+            }
+            temp_step = 0;
+            flag_state.pdp_active = false;
+            modem_state = MODEM_STATE_IDLE;
+            break;
+        default:
+            break;
+    }
+}
+
 
  void modem_state_ready(void){
 
@@ -612,20 +709,21 @@ void modem_service_fsm_process(void)
 
 
     /*===========================================
-     *              POWER ON
-     *===========================================*/
-    case MODEM_STATE_POWER_ON:
-        modem_state_power_on_process();
-        break;
-
-
-    /*===========================================
      *              POWER OFF
      *===========================================*/
     case MODEM_STATE_POWER_OFF:
         modem_state_power_off_process();
+        delay_ms(100);
         break;
 
+
+    /*===========================================
+     *              POWER ON
+     *===========================================*/
+    case MODEM_STATE_POWER_ON:
+        modem_state_power_on_process();
+        delay_ms(100);
+        break;
 
     /*===========================================
      *              SYNC AT
@@ -705,14 +803,28 @@ void modem_service_fsm_process(void)
     /*===========================================
      *             ACTIVATE PDP
      *===========================================*/
-    // case MODEM_STATE_ACTIVATE_PDP_ENTRY:
-    //     modem_state_activate_pdp_entry();
-    //     break;
+    case MODEM_STATE_ACTIVATE_PDP_ENTRY:
+        tmp = modem_state_activate_pdp_entry();
+        if (tmp){
+            modem_state = MODEM_STATE_WAIT_ACTIVATE_PDP;
+        }
+        break;
 
-    // case MODEM_STATE_WAIT_ACTIVATE_PDP:
-    //     modem_state_wait_activate_pdp();
-    //     break;
+    case MODEM_STATE_WAIT_ACTIVATE_PDP:
+        modem_state_wait_activate_pdp();
+        break;
 
+
+    /*===========================================
+     *              HTTP INIT
+     *===========================================*/
+    case MODEM_STATE_HTTP_INIT:
+        flag_state.http_active = http_init();
+        if (flag_state.http_active){
+            modem_state = MODEM_STATE_IDLE;
+            DEBUG_PRINT("OK MODEM GOING TO READY STATE\r\n");
+        }
+        break;
 
     /*===========================================
      *              READY / ERROR
@@ -740,7 +852,13 @@ static void clear_flag_state(void){
     step_config = CONFIG_ECHO;
 }
 
-
 modem_service_state_t get_current_services_state(void){
     return modem_state;
+}
+
+bool modem_is_ready(void){
+    if (modem_state == MODEM_STATE_READY){
+        return true;
+    }
+    return false;
 }

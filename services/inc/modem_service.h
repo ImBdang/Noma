@@ -12,7 +12,6 @@
 
 
 /* ==================================== API DECLARATION ========================================== */
-bool service_is_ready(void);
 void modem_service_process(void);
 void modem_init_service(void);
 

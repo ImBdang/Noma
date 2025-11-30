@@ -1,9 +1,9 @@
 #ifndef __MODEM_SMS_S__
 #define __MODEM_SMS_S__
 
+#include "modem_api.h"
 #include "modem_service_fsm.h"
 #include "modem_service_callback_sms.h"
-#include "modem_api.h"
 #include "usart_api.h"
 #include "event_driven.h"
 #include "stdbool.h"

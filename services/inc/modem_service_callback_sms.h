@@ -2,9 +2,11 @@
 #define __MODEM_CALLBACK_SMS_S__
 
 #include "modem_api.h"
+#include "modem_typdef.h"
+#include "modem_service_sms.h"
 #include "string_handle.h"
 #include "event_driven.h"
-#include "modem_service_sms.h"
+
 
 /* ================================ API DECLARATIONS ================================== */
 void sms_cmgf_callback(respon_status_t resp_status, const char *str,  uint32_t len);

@@ -10,11 +10,7 @@ urc_event_queue_t urc_event_queue;
  * @retval  True if is ready
  * @retval  False if isnt ready
  */
-bool service_is_ready(void){
-    if (get_current_services_state() == MODEM_STATE_READY)
-        return true;
-    return false;
-}
+
 
 /**
  * @brief   Call FSM of the service

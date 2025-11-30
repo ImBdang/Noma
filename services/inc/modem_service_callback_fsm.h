@@ -1,6 +1,7 @@
 #ifndef __MODEM_CALLBACK_FSM_S__
 #define __MODEM_CALLBACK_FSM_S__
 
+#include "modem_typdef.h"
 #include "modem_api.h"
 #include "modem_service.h"
 #include "string_handle.h"
@@ -45,6 +46,10 @@ void modem_check_reg_callback(respon_status_t reps_status, const char* line, uin
 void modem_attach_psd_cgatt_callback(respon_status_t reps_status, const char* line, uint32_t len);
 
 /*<! CALLBACK FOR ACTIVATE PDP STATE */
-void modem_activate_pdp_cgact_callback(respon_status_t reps_status, const char* line, uint32_t len);
+void modem_pdp_cgdcont_callback(respon_status_t resp_status, const char* line, uint32_t len);
+
+void modem_pdp_cgact_callback(respon_status_t resp_status, const char* line, uint32_t len);
+
+void dummy_callback(respon_status_t resp_status, const char* line, uint32_t len);
 
 #endif  /* __MODEM_CALLBACK_FSM_S__ */

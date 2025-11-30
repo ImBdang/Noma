@@ -88,6 +88,10 @@ typedef enum {
     URC_EVT_SIM_NOT_INSERTED,  // +CPIN: NOT INSERTED
     URC_EVT_SIM_PIN_REQUIRED,  // +CPIN: SIM PIN
 
+    /* HTTP URC */
+    URC_EVT_HTTP_GET,
+    URC_EVT_HTTP_READ,
+
     /* POWER / SYSTEM URC */
     URC_EVT_PWR_DOWN,          // POWER DOWN
     URC_EVT_PWR_UP,            // RDY hoặc PB DONE
@@ -141,6 +145,14 @@ typedef struct {
             int sim_status;
         } sim;
 
+        struct {
+            char status_code[4];
+            uint32_t data_len;
+        } http_get;
+
+        struct {
+            uint32_t data_len;
+        } http_read;
     } info;
 
 } urc_t;

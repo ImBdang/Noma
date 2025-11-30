@@ -1,13 +1,13 @@
 #ifndef __MODEM_FSM_S__
 #define __MODEM_FSM_S__
 
-
 #include "modem_api.h"
 #include "stdbool.h"
 #include "systick_api.h"
 #include "debug.h"
 #include "event_driven.h"
 #include "modem_service_callback_fsm.h"
+#include "http_service.h"
 
 /* ==================================== TYPEDEF STRUCT ========================================= */
 
@@ -18,6 +18,7 @@ typedef enum {
 } modem_power_t;
 
 typedef struct {
+    bool power_off;
     bool power_on;          /*<! POWER_ON state flag */
     bool at_ready;          /*<! SYNC_AT state flag */
     bool config_ready;      /*<! CONFIG state flag */
@@ -25,6 +26,7 @@ typedef struct {
     bool reg_ready;         /*<! CHECK_REG state flag */
     bool psd_attached;      /*<! ATTACH_PSD state flag */
     bool pdp_active;        /*<! ACTIVATE_PDP state flag */
+    bool http_active;       /*<! ACTIVATE HTTP flag */
     bool error_happen;      /*<! ERROR HAPPENED */
 } modem_state_flag_t;
 
@@ -53,6 +55,9 @@ typedef enum {
     MODEM_STATE_ACTIVATE_PDP_ENTRY,    
     MODEM_STATE_WAIT_ACTIVATE_PDP,
 
+    MODEM_STATE_HTTP_INIT,
+    MODEM_STATE_HTTP_WAIT_INIT,
+
     MODEM_STATE_READY,          
     MODEM_STATE_ERROR           
 } modem_service_state_t;
@@ -65,7 +70,7 @@ typedef enum {
 
 
 /* ==================================== API DECLARATION ========================================== */
-modem_service_state_t get_current_services_state(void);
+bool modem_is_ready(void);
 void modem_service_fsm_process(void);
 
 #endif /* __MODEM_FSM_S__ */

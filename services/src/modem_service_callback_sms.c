@@ -127,7 +127,6 @@ void sms_read_sms_callback(respon_status_t resp_status, const char *str, uint32_
             strncpy(sms_body, str, sizeof(sms_body)-1);
             sms_body[sizeof(sms_body)-1] = '\0';
 
-            DEBUG_PRINT("SMS BODY: ");
             DEBUG_PRINT(sms_body);
             DEBUG_PRINT("\r\n");
             break;
