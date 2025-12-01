@@ -37,13 +37,18 @@ void modem_urc_make_event(const char *urc){
     }
 
     if (strncmp(urc, "+HTTPREAD:", 10) == 0) {
-        const char *p = urc + 11;        // "+HTTPREAD: "
+        const char *p = urc + 10;
+        while (*p == ' ') p++;
+
         uint32_t size = fast_atoi(p);
-        urc_t evt = {0};
-        evt.type = URC_EVT_HTTP_READ;
-        evt.info.http_read.data_len = size;
-        urc_push_event(&urc_event_queue, &evt);
+
+        httpread_incoming  = true;
+        httpread_remaining = size;
+        // httpread_ptr       = temp_buf;
+
+        return;
     }
+
 
     if (strcmp(urc, "RING") == 0) {
         urc_t evt = {0};

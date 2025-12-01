@@ -1,13 +1,15 @@
 #include "modem_api.h"
 
 /* ====================================== DECLARATIONS ======================================= */
-
-
+uint8_t temp_buf[4096];
+bool httpread_incoming = false;
+uint32_t httpread_remaining = 0;
+uint8_t* httpread_ptr = temp_buf;
 
 lwrb_t usart_rb;
-static uint8_t usart_rx_raw[256];
+static uint8_t usart_rx_raw[4096];
 
-char line_buff[256];
+char line_buff[1024];
 static uint16_t line_len = 0;
 
 static modem_at_cmd_t executing_cmd;
@@ -46,12 +48,28 @@ bool modem_send_at_cmd(modem_at_cmd_t cmd){
     return true;
 }
 
+static void breakp(void){
+    DEBUG_PRINT("HEHE\r\n");
+}
+
+
 void line_parse(void){
     uint8_t c;
     while (lwrb_read(&usart_rb, &c, 1)){
+        if (httpread_incoming) {
+            *httpread_ptr++ = c;
+            httpread_remaining--;
+            if (httpread_remaining == 0) {
+                httpread_incoming = false;
+            }
+            continue; 
+        }
+
         if (line_len < sizeof(line_buff) - 1) {
-            if (c != 0xFF)
+
+            if (c != 0xFF){
                 line_buff[line_len++] = c;
+            }
         }
         if (c == '\n') {
             line_buff[line_len] = '\0';     
@@ -61,12 +79,15 @@ void line_parse(void){
                 DEBUG_PRINT("\r");
                 handle_response_line(line_buff);
             }
-            else
+            else {
                 handle_urc_line(line_buff);
+            }
             line_len = 0;              
         }
+
     }
 }
+
 
 /**
  * @brief   Handle response line
@@ -75,10 +96,12 @@ void line_parse(void){
  */
 void handle_response_line(const char *line)
 {
+
     /*<! If the line is empty */
     size_t len = strlen(line);
     if (len == 0 || line[0] == '\r' || line[0] == '\n')
         return;
+        
 
     /*<! Primary response */
     if (executing_cmd.expect[0] != '\0' &&
@@ -113,6 +136,10 @@ void handle_response_line(const char *line)
         executing_cmd.cb(INTERMEDIATE, line, strlen(line));
     }
 }
+
+
+
+
 
 /**
  * @brief   Handle URC response

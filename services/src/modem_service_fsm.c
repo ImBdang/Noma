@@ -155,7 +155,7 @@ bool modem_power_on(void)
  */
 bool modem_power_reset(void){
     modem_power_off();
-    delay_ms(50);
+
     modem_power_on();
 }
 
@@ -713,7 +713,7 @@ void modem_service_fsm_process(void)
      *===========================================*/
     case MODEM_STATE_POWER_OFF:
         modem_state_power_off_process();
-        delay_ms(100);
+        delay_ms(500);
         break;
 
 
@@ -722,7 +722,7 @@ void modem_service_fsm_process(void)
      *===========================================*/
     case MODEM_STATE_POWER_ON:
         modem_state_power_on_process();
-        delay_ms(100);
+        delay_ms(500);
         break;
 
     /*===========================================
@@ -744,6 +744,7 @@ void modem_service_fsm_process(void)
      *                CONFIG
      *===========================================*/
     case MODEM_STATE_CONFIG_ENTRY:
+        delay_ms(1500);
         tmp = modem_state_config_entry();
         if (tmp){
             modem_state = MODEM_STATE_WAIT_CONFIG;
@@ -752,6 +753,7 @@ void modem_service_fsm_process(void)
 
     case MODEM_STATE_WAIT_CONFIG:
         modem_state_wait_config();
+
         break;
 
 
@@ -759,6 +761,7 @@ void modem_service_fsm_process(void)
      *              CHECK SIM
      *===========================================*/
     case MODEM_STATE_CHECK_SIM_ENTRY:
+        delay_ms(500);
         tmp = modem_state_check_sim_entry();
         if (tmp){
             modem_state = MODEM_STATE_WAIT_CHECK_SIM;
@@ -774,6 +777,7 @@ void modem_service_fsm_process(void)
      *              CHECK REG
      *===========================================*/
     case MODEM_STATE_CHECK_REG_ENTRY:
+        delay_ms(500);
         tmp = modem_state_check_reg_entry();
         if (tmp){
             modem_state = MODEM_STATE_WAIT_CHECK_REG;
@@ -789,10 +793,12 @@ void modem_service_fsm_process(void)
      *              ATTACH PSD
      *===========================================*/
     case MODEM_STATE_ATTACH_PSD_ENTRY:
+        delay_ms(500);
         tmp = modem_state_attach_psd_entry();
         if (tmp){
             modem_state = MODEM_STATE_WAIT_ATTACH_PSD;
         }
+        
         break;
 
     case MODEM_STATE_WAIT_ATTACH_PSD:
@@ -804,6 +810,7 @@ void modem_service_fsm_process(void)
      *             ACTIVATE PDP
      *===========================================*/
     case MODEM_STATE_ACTIVATE_PDP_ENTRY:
+        delay_ms(500);
         tmp = modem_state_activate_pdp_entry();
         if (tmp){
             modem_state = MODEM_STATE_WAIT_ACTIVATE_PDP;

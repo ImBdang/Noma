@@ -2,26 +2,13 @@
 
 /* ====================================== DECLARATIONS ======================================= */
 extern urc_event_queue_t urc_event_queue;
+
+extern bool httpread_incoming;
+extern uint32_t httpread_remaining;
+extern uint8_t* httpread_ptr;
+
 static uint32_t remaining_bit = 0;
 /* =========================================================================================== */
-
-static void breakp(void){
-    DEBUG_PRINT("HEHE\r\n");
-}
-
-static void read_data(urc_t evt){
-    uint32_t size = evt.info.http_read.data_len;
-
-    static uint8_t temp_buf[2048];   
-    uint32_t read_cnt = 0;
-    while (read_cnt < size) {
-        uint8_t c;
-        if (lwrb_read(&usart_rb, &c, 1) == 1) {
-            temp_buf[read_cnt++] = c;
-        }
-    }
-    breakp();
-}
 
 void modem_service_urc_process(void){
     urc_t evt;
@@ -48,8 +35,9 @@ void modem_service_urc_process(void){
         break;
     
     case URC_EVT_HTTP_READ:
-        DEBUG_PRINT("READ NAY\r\n");
-        read_data(evt);
+        // DEBUG_PRINT("READ NAY\r\n");
+        // httpread_incoming = true;
+        // httpread_remaining = evt.info.http_read.data_len;
         break;
 
     case URC_EVT_NET_REG_STATUS:

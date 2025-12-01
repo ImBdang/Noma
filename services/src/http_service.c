@@ -86,7 +86,8 @@ static bool http_config_entry(void){
         case 0:
         {
             modem_at_cmd_t cmd = {
-                .cmd = "AT+HTTPPARA=\"URL\",\"https://raw.githubusercontent.com/ImBdang/raw/main/main.bin\"",
+                //.cmd = "AT+HTTPPARA=\"URL\",\"https://raw.githubusercontent.com/ImBdang/raw/main/main.bin\"",
+                .cmd = "AT+HTTPPARA=\"URL\",\"http://opinion.people.com.cn/GB/n1/2018/0815/c1003-30228758.html\"",
                 .expect = "",
                 .timeout_ms = 5000,
                 .start_tick = get_systick_ms(),
@@ -217,11 +218,15 @@ void http_get(void){
 
 void http_read(uint32_t data_len){
     modem_at_cmd_t cmd = {
-        .cmd = "AT+HTTPREAD=0,1024",
+        .cmd = "AT+HTTPREAD=0,512",
         .expect = "",
         .timeout_ms = 5000,
         .start_tick = get_systick_ms(),
         .cb = dummy_callback
     };
+
+    // httpread_incoming  = true;
+    // httpread_remaining = 512;
+    // httpread_ptr       = temp_buf;
     modem_send_at_cmd(cmd);
 }

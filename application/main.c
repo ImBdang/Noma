@@ -13,7 +13,6 @@ int main(void) {
   bool flag = true;
   while(1){
     modem_service_process();
-    delay_ms(100);
     if (modem_is_ready()){
       if (flag){
         http_get();
