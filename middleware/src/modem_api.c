@@ -1,14 +1,14 @@
 #include "modem_api.h"
 
 /* ====================================== DECLARATIONS ======================================= */
-uint8_t temp_buf[4096];
+uint8_t temp_buf[1024];
 bool httpread_incoming = false;
 uint32_t httpread_remaining = 0;
 uint8_t* httpread_ptr = temp_buf;
 
 lwrb_t usart_rb;
 static uint8_t usart_rx_raw[4096];
-
+        
 char line_buff[1024];
 static uint16_t line_len = 0;
 
@@ -46,10 +46,6 @@ bool modem_send_at_cmd(modem_at_cmd_t cmd){
     DEBUG_PRINT(executing_cmd.cmd);
     DEBUG_PRINT("\r\n");
     return true;
-}
-
-static void breakp(void){
-    DEBUG_PRINT("HEHE\r\n");
 }
 
 
@@ -105,7 +101,7 @@ void handle_response_line(const char *line)
 
     /*<! Primary response */
     if (executing_cmd.expect[0] != '\0' &&
-        strstr(line, executing_cmd.expect) != NULL)
+        strncmp(line, executing_cmd.expect, strlen(executing_cmd.expect)) == 0)
     {
         if (executing_cmd.cb)
             executing_cmd.cb(PRIMARY, line, strlen(line));

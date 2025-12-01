@@ -20,7 +20,7 @@ extern  char line_buff[1024];
 extern bool httpread_incoming;
 extern uint32_t httpread_remaining;
 extern uint8_t* httpread_ptr;
-extern uint8_t temp_buf[4096];
+extern uint8_t temp_buf[1024];
 
 /* TYPDEF STRCUT ------------------------------------------------------------------ */ 
 

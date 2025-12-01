@@ -1,6 +1,7 @@
 #ifndef __HTTP_S__
 #define __HTTP_S__
 
+#include "stdio.h"
 #include "stdint.h"
 #include "stdbool.h"
 #include "modem_typdef.h"
@@ -28,7 +29,7 @@ typedef enum {
 /* ================================= API DECLARATIONS ============================== */
 extern bool http_init_flag;
 
-void http_read(uint32_t data_len);
+void http_read(uint32_t offset, uint32_t data_len);
 void http_get(void);
 bool http_init(void);
 

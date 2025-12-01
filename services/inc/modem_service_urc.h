@@ -8,7 +8,9 @@
 #include "event_driven.h"
 #include "stdbool.h"
 
+extern uint32_t next_offset;
+extern uint32_t firmware_totals;
 
 /* =============================== API DECLARATIONS =============================== */
 void modem_service_urc_process(void);
-#endif /* __MODEM_URC_S__ */
+#endif /* __MODEM_URC_S__ */    

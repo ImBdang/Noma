@@ -26,26 +26,27 @@ void modem_urc_make_event(const char *urc){
     if (strncmp(urc, "+HTTPACTION:", 12) == 0) {
         char status[4];
         uint32_t len;
+        uint8_t method;
         urc_t evt = {0};
-        evt.type = URC_EVT_HTTP_GET;
-        http_get_dispatch(urc, status, &len);
-        evt.info.http_get.data_len = len;
-        strcpy(evt.info.http_get.status_code, status);
+        http_action_dispatch(urc, &method, status, &len);
+        if (method == 0){
+            evt.type = URC_EVT_HTTP_GET;
+            evt.info.http_get.data_len = len;
+            strcpy(evt.info.http_get.status_code, status);
+            evt.info.http_get.method = method;
+        }
         urc_push_event(&urc_event_queue, &evt);
         DEBUG_PRINT(urc);
         return;
     }
 
     if (strncmp(urc, "+HTTPREAD:", 10) == 0) {
-        const char *p = urc + 10;
-        while (*p == ' ') p++;
-
-        uint32_t size = fast_atoi(p);
-
-        httpread_incoming  = true;
-        httpread_remaining = size;
-        // httpread_ptr       = temp_buf;
-
+        uint32_t size = httpread_dispatch(urc);
+        if (size > 0){
+            httpread_ptr       = temp_buf;
+            httpread_incoming  = true;
+            httpread_remaining = size;
+        }
         return;
     }
 

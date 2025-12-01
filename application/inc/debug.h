@@ -8,5 +8,5 @@
 
 void usart_debug(const char* s);
 
-
+void breakp(void);
 #endif /* __DEBUG__ */

@@ -216,17 +216,16 @@ void http_get(void){
 }
 
 
-void http_read(uint32_t data_len){
+void http_read(uint32_t offset, uint32_t size){
+    char cmd_str[32];
+    sprintf(cmd_str, "AT+HTTPREAD=%lu,%lu", offset, size);
+
     modem_at_cmd_t cmd = {
-        .cmd = "AT+HTTPREAD=0,512",
         .expect = "",
         .timeout_ms = 5000,
-        .start_tick = get_systick_ms(),
         .cb = dummy_callback
     };
 
-    // httpread_incoming  = true;
-    // httpread_remaining = 512;
-    // httpread_ptr       = temp_buf;
+    strcpy(cmd.cmd, cmd_str);
     modem_send_at_cmd(cmd);
 }

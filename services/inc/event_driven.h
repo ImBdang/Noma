@@ -5,9 +5,10 @@
 #include "stdbool.h"
 #include "stddef.h"
 
-#define MODEM_EVENT_QUEUE_SIZE 16
-#define SMS_EVENT_QUEUE_SIZE 16
-#define URC_EVENT_QUEUE_SIZE 16
+#define MODEM_EVENT_QUEUE_SIZE      16
+#define SMS_EVENT_QUEUE_SIZE        16
+#define URC_EVENT_QUEUE_SIZE        16
+#define URC_EVENT_OTA_SIZE          16
 
 /* ==================================== TYPEDEF ENUM =========================================== */
 typedef enum {
@@ -16,6 +17,7 @@ typedef enum {
     EVT_OK,
     EVT_ERROR,
     EVT_TIMEOUT,
+    EVT_PRIMARY,
 
     EVT_CPIN_READY,
     EVT_CPIN_PIN,
@@ -100,6 +102,12 @@ typedef enum {
 } urc_event_t;
 
 
+typedef enum {
+    OTA_EVT_GET_FIRMWARE_SIZE = 0,
+    OTA_UPDATE_FIRMWARE
+} ota_event_t;
+
+
 typedef struct {
     urc_event_t type;
 
@@ -146,8 +154,9 @@ typedef struct {
         } sim;
 
         struct {
-            char status_code[4];
             uint32_t data_len;
+            uint8_t method;
+            char status_code[4];
         } http_get;
 
         struct {
@@ -177,6 +186,13 @@ typedef struct {
     uint8_t tail;
 } urc_event_queue_t;
 
+typedef struct {
+    ota_event_t buf[URC_EVENT_OTA_SIZE];
+    uint8_t head;
+    uint8_t tail;
+} ota_event_queue_t;
+
+
 /* ==================================== API DECLARATION ======================================== */
 bool push_event(modem_event_queue_t* q, modem_event_t evt);
 bool pop_event(modem_event_queue_t* q, modem_event_t* evt);
@@ -199,5 +215,14 @@ bool urc_event_queue_is_full(urc_event_queue_t* q);
 void urc_event_queue_clear(urc_event_queue_t* q);
 bool urc_push_event(urc_event_queue_t* q, const urc_t* evt);
 bool urc_pop_event(urc_event_queue_t* q, urc_t* evt);
+
+
+bool ota_event_queue_push(ota_event_queue_t* q, ota_event_t evt);
+bool ota_event_queue_pop(ota_event_queue_t* q, ota_event_t* evt);
+bool ota_event_queue_is_empty(ota_event_queue_t* q);
+bool ota_event_queue_is_full(ota_event_queue_t* q);
+void ota_event_queue_clear(ota_event_queue_t* q);
+void ota_event_queue_init(ota_event_queue_t* q);
+
 
 #endif /* __EVENT_S__ */
