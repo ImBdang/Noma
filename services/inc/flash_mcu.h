@@ -6,6 +6,12 @@
 #include "stm32f4xx_flash.h"
 #include "stdbool.h"
 #include "ota_callback.h"
+#include "debug.h"
+
+#define  CHUNK_SIZE       512
+#define  SECTOR_5_ADDR    0x08020000  
+extern uint32_t current_offset;
+extern uint32_t current_firmware_size;
 
 typedef enum {
     OTA_PREPARE = 0,
@@ -27,7 +33,6 @@ typedef enum {
 } ota_init_step_t;
 
 extern uint32_t firmware_size;
-extern uint32_t curent_offset;
 
 /* ============================== API ============================== */
 void ota(void);

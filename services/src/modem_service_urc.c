@@ -3,9 +3,6 @@
 /* ====================================== DECLARATIONS ======================================= */
 extern urc_event_queue_t urc_event_queue;
 
-uint32_t next_offset = 0;
-uint32_t firmware_total = 0;
-
 extern bool httpread_incoming;
 extern uint32_t httpread_remaining;
 extern uint8_t* httpread_ptr;
@@ -27,9 +24,7 @@ void modem_service_urc_process(void){
     case URC_EVT_HTTP_GET:
         if (strncmp(evt.info.http_get.status_code, "200", 3) == 0){
             DEBUG_PRINT("HTTP STATUS CODE 200\r\n");
-            firmware_total = evt.info.http_get.data_len;
-            uint32_t chunk  = (firmware_total > 512) ? 512 : firmware_total;
-            http_read(next_offset ,chunk);
+            firmware_size = evt.info.http_get.data_len;
         }
         else{
             DEBUG_PRINT("HTTP ERROR, STATUS CODE: ");

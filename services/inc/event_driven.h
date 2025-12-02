@@ -94,6 +94,9 @@ typedef enum {
     URC_EVT_HTTP_GET,
     URC_EVT_HTTP_READ,
 
+    /* OTA */
+    OTA_IS_ENABLE,
+    
     /* POWER / SYSTEM URC */
     URC_EVT_PWR_DOWN,          // POWER DOWN
     URC_EVT_PWR_UP,            // RDY hoặc PB DONE

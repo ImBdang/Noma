@@ -1,5 +1,8 @@
 #include "http_callback.h"
 
+extern modem_event_queue_t event_queue;
+extern uint32_t firmware_size;
+
 // void httpread_callback(respon_status_t  resp, const char* line, uint16_t len)
 // {
 //     if (resp == OK_RESP) {
@@ -21,3 +24,58 @@
 //         }
 //     }
 // }
+
+
+
+void httpget_callback(respon_status_t resp_status, const char* line, uint32_t len){
+    switch (resp_status){
+
+    case PRIMARY:
+        DEBUG_PRINT("PRIMARY\r\n");
+        uint8_t method;
+        char status[4];
+        http_action_dispatch(line, &method, status, &firmware_size);
+        push_event(&event_queue, EVT_PRIMARY);
+        break;
+
+    case OK_RESP:
+        DEBUG_PRINT("OK EVENT\r\n");
+        push_event(&event_queue, EVT_OK);
+        break;
+        
+    case ERROR_RESP:
+        DEBUG_PRINT("ERROR EVENT\r\n");
+        push_event(&event_queue, EVT_ERROR);
+        break;
+
+    case TIMEOUT_RESP:
+        DEBUG_PRINT("TIMEOUT EVENT\r\n");
+        push_event(&event_queue, EVT_TIMEOUT);
+        break;
+    }
+}
+
+void httpread_callback(respon_status_t resp_status, const char* line, uint32_t len){
+    switch (resp_status){
+
+    case PRIMARY:
+        DEBUG_PRINT("PRIMARY EVENT\r\n");
+        push_event(&event_queue, EVT_PRIMARY);
+        break;
+
+    case OK_RESP:
+        DEBUG_PRINT("OK EVENT\r\n");
+        push_event(&event_queue, EVT_OK);
+        break;
+        
+    case ERROR_RESP:
+        DEBUG_PRINT("ERROR EVENT\r\n");
+        push_event(&event_queue, EVT_ERROR);
+        break;
+
+    case TIMEOUT_RESP:
+        DEBUG_PRINT("TIMEOUT EVENT\r\n");
+        push_event(&event_queue, EVT_TIMEOUT);
+        break;
+    } 
+}

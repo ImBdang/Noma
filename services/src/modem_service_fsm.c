@@ -200,10 +200,10 @@ static void modem_state_idle_process(void)
     }
 
     /*<! STATE: POWER_OFF */
-    if (!flag_state.power_off) {
-        modem_state = MODEM_STATE_POWER_OFF;
-        return;
-    }
+    // if (!flag_state.power_off) {
+    //     modem_state = MODEM_STATE_POWER_OFF;
+    //     return;
+    // }
 
     /*<! STATE: POWER_ON */
     if (!flag_state.power_on) {
@@ -248,10 +248,10 @@ static void modem_state_idle_process(void)
     }
 
 
-    if (!flag_state.http_active) {
-        modem_state = MODEM_STATE_HTTP_INIT;
-        return;
-    }
+    // if (!flag_state.http_active) {
+    //     modem_state = MODEM_STATE_HTTP_INIT;
+    //     return;
+    // }
 
     /*<! STATE: READY */
     modem_state = MODEM_STATE_READY;
@@ -439,6 +439,7 @@ static void modem_state_wait_check_sim(void) {
 
     switch (evt)
     {
+
         case EVT_CPIN_READY:
             timeout_count = 0; 
             flag_state.sim_ready = true;

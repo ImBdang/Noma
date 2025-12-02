@@ -5,8 +5,12 @@ extern modem_event_queue_t event_queue;
 static ota_step_t step = OTA_PREPARE;
 static ota_init_step_t step_init = OTA_SET_URL;
 
+uint32_t chunk_actual = 0;
+uint32_t current_offset = 0;
+uint32_t current_firmware_size = 0;
+
+bool is_ota = false;
 uint32_t firmware_size = 0;
-uint32_t curent_offset;
 
 static uint32_t flash_get_sector(uint32_t addr);
 /* ====================================== DECLARATIONS ======================================= */
@@ -99,7 +103,7 @@ void ota(void){
         break;
     
     case FLASH_SECTOR_ERASE:
-
+        breakp();
         break;
 
     case FLASH_SECTOR_WAIT_ERASE:

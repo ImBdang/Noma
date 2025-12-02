@@ -6,8 +6,9 @@ bool httpread_incoming = false;
 uint32_t httpread_remaining = 0;
 uint8_t* httpread_ptr = temp_buf;
 
+extern uint32_t chunk_actual;
 lwrb_t usart_rb;
-static uint8_t usart_rx_raw[4096];
+static uint8_t usart_rx_raw[2048];
         
 char line_buff[1024];
 static uint16_t line_len = 0;
@@ -57,6 +58,7 @@ void line_parse(void){
             httpread_remaining--;
             if (httpread_remaining == 0) {
                 httpread_incoming = false;
+                flash_chunk(temp_buf, chunk_actual, SECTOR_5_ADDR + current_offset);
             }
             continue; 
         }
@@ -70,12 +72,15 @@ void line_parse(void){
         if (c == '\n') {
             line_buff[line_len] = '\0';     
             if (is_busy){
-                DEBUG_PRINT("<<");
+                DEBUG_PRINT("<<RESPONSE: ");
                 DEBUG_PRINT(line_buff);
                 DEBUG_PRINT("\r");
                 handle_response_line(line_buff);
             }
             else {
+                DEBUG_PRINT("<<URC: ");
+                DEBUG_PRINT(line_buff);
+                DEBUG_PRINT("\r");
                 handle_urc_line(line_buff);
             }
             line_len = 0;              
@@ -132,8 +137,6 @@ void handle_response_line(const char *line)
         executing_cmd.cb(INTERMEDIATE, line, strlen(line));
     }
 }
-
-
 
 
 

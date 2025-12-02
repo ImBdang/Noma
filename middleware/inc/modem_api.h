@@ -10,6 +10,7 @@
 #include "lwrb.h"
 #include "usart_api.h"
 #include "systick_api.h"
+#include "flash_mcu.h"
 #include "modem_urc_api.h"
 #include "modem_typdef.h"
 

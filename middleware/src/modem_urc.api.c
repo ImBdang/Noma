@@ -2,6 +2,11 @@
 
 /* ====================================== DECLARATIONS ======================================= */
 extern urc_event_queue_t urc_event_queue;
+extern bool is_ota;
+extern uint32_t current_offset;
+extern uint32_t chunk_actual;
+
+uint32_t http_read_size = 0;
 /* =========================================================================================== */
 void modem_urc_make_event(const char *urc){
     
@@ -41,12 +46,24 @@ void modem_urc_make_event(const char *urc){
     }
 
     if (strncmp(urc, "+HTTPREAD:", 10) == 0) {
-        uint32_t size = httpread_dispatch(urc);
-        if (size > 0){
+        urc_t evt = {0};
+        evt.type  = URC_EVT_HTTP_READ;
+
+        evt.info.http_read.data_len = httpread_dispatch(urc);
+        uint32_t actual = evt.info.http_read.data_len;
+
+        if (is_ota && actual > 0) {
+
+            current_firmware_size -= actual;     
+            current_offset += actual;           
+
             httpread_ptr       = temp_buf;
             httpread_incoming  = true;
-            httpread_remaining = size;
+            httpread_remaining = actual;
+            http_read_size     = actual;
         }
+
+        urc_push_event(&urc_event_queue, &evt);
         return;
     }
 
